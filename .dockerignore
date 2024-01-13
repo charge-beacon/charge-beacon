@@ -1,0 +1,9 @@
+fly.toml
+.git/
+*.sqlite3
+.venv
+.idea
+staticfiles
+.env
+__pycache__
+*.pyc
