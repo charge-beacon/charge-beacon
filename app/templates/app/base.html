@@ -1,0 +1,37 @@
+{% load static %}
+
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'app/css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+
+    {% block style_extra %}
+    {% endblock %}
+
+    {% block script_extra %}
+    {% endblock %}
+
+    {% block meta %}
+    {% endblock %}
+
+    <link rel="icon" href="{% static 'app/img/favicon.ico' %}" sizes="any">
+    <link rel="apple-touch-icon" href="{% static 'app/img/apple-touch-icon.png' %}">
+</head>
+
+<body class="{% block bodyclass %}{% endblock %}">
+
+<div class="site{% block siteclass %}{% endblock %}">
+{% block content %}
+{% endblock %}
+</div>
+
+</body>
+
+</html>

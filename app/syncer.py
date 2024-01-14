@@ -13,3 +13,4 @@ params = {
 def sync():
     data = requests.get(URL, params=params).json()
     Station.objects.import_from_nrel(data)
+    Station.objects.link_stations()

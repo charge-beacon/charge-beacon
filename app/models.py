@@ -1,5 +1,8 @@
 from django.db import models
+from django.utils import dateparse, timezone
+from django.core.serializers.json import json, DjangoJSONEncoder
 from simple_history.models import HistoricalRecords
+from django.forms import model_to_dict
 
 
 class StationQuerySet(models.QuerySet):
@@ -14,7 +17,69 @@ class StationQuerySet(models.QuerySet):
             'ev_workplace_charging', 'nps_unit_name',
         ]
         for station in data['fuel_stations']:
-            self.update_or_create(id=station['id'], defaults={k: station[k] for k in interesting_fields})
+            clean_station_json(station)
+            qs = self.filter(id=station['id'])
+            cobj = Station(**{k: v for k, v in station.items() if k in interesting_fields})
+            if qs.exists():
+                obj = qs.first()
+                has_diff = False
+                for field in interesting_fields:
+                    f1 = getattr(obj, field)
+                    f2 = getattr(cobj, field)
+                    if f1 != f2:
+                        print('diff', field, f1, f2, id(f1), id(f2), type(f1), type(f2))
+                        has_diff = True
+                        setattr(obj, field, getattr(cobj, field))
+                if has_diff:
+                    obj.save()
+                    Update.objects.station_updated(obj)
+            else:
+                cobj.save()
+                Update.objects.station_updated(cobj, is_creation=True)
+
+    def link_stations(self):
+        all_stations = self.all()
+        matches = {}
+        for station in all_stations:
+            key = station.key()
+            if key not in matches:
+                matches[key] = []
+            matches[key].append(station)
+        for key, stations in matches.items():
+            if len(stations) > 1:
+                print(key, len(stations))
+                stations = sorted(stations, key=lambda x: x.id)
+                for station in stations[1:]:
+                    if station.linked_to != stations[0]:
+                        station.linked_to = stations[0]
+                        station.save()
+
+    def primaries(self):
+        return self.filter(linked_to__isnull=True)
+
+    def all_networks(self):
+        count = models.Count('ev_network', filter=models.Q(linked_to__isnull=True))
+        result = self.values('ev_network').annotate(count=count).order_by('ev_network')
+        for r in result:
+            name = r['ev_network'] or 'None'
+            yield {
+                'name': name.replace('_', ' ').title(),
+                'id': r['ev_network'] or 'None',
+                'handle': network_name_as_handle(r['ev_network']),
+                'count': r['count'],
+            }
+
+    def all_states(self):
+        count = models.Count('state', filter=models.Q(linked_to__isnull=True))
+        result = self.values('state').annotate(count=count).order_by('state')
+        for r in result:
+            name = r['state'] or 'None'
+            yield {
+                'name': name.upper(),
+                'id': r['state'] or 'None',
+                'handle': state_as_handle(r['state']),
+                'count': r['count'],
+            }
 
 
 class Station(models.Model):
@@ -30,7 +95,7 @@ class Station(models.Model):
     maximum_vehicle_class = models.TextField(blank=True, null=True)
     open_date = models.DateField(blank=True, null=True)
     owner_type_code = models.TextField(blank=True, null=True)
-    restricted_access = models.TextField(blank=True, null=True)
+    restricted_access = models.BooleanField(blank=True, null=True)
     status_code = models.TextField(blank=True, null=True)
     facility_type = models.TextField(blank=True, null=True)
     station_name = models.TextField(blank=True, null=True)
@@ -57,5 +122,128 @@ class Station(models.Model):
     ev_renewable_source = models.TextField(blank=True, null=True)
     ev_workplace_charging = models.BooleanField(default=False, blank=True, null=True)
     nps_unit_name = models.TextField(blank=True, null=True)
+    linked_to = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name='linked')
     history = HistoricalRecords()
+
     objects = StationQuerySet.as_manager()
+
+    @property
+    def network_name_as_handle(self):
+        return network_name_as_handle(self.ev_network)
+
+    @property
+    def state_as_handle(self):
+        return state_as_handle(self.state)
+
+    def key(self):
+        return f'{self.ev_network}: {self.street_address}, {self.city}, {self.state}'
+
+
+def network_name_as_handle(network):
+    return network.lower().replace(' ', '-') if network else 'none'
+
+
+def state_as_handle(state):
+    return state.lower() if state else 'na'
+
+
+class PersonaQuerySet(models.QuerySet):
+    def from_network_name(self, network):
+        return self.get(handle=network_name_as_handle(network))
+
+    def from_state(self, state):
+        return self.get(handle=state_as_handle(state))
+
+
+class PersonaType(models.TextChoices):
+    NETWORK = 'n', 'Network'
+    STATE = 's', 'State'
+
+
+class Persona(models.Model):
+    handle = models.SlugField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    persona_type = models.CharField(max_length=1, choices=PersonaType.choices)
+
+    objects = PersonaQuerySet.as_manager()
+
+    def __str__(self):
+        return self.name
+
+
+class UpdateQuerySet(models.QuerySet):
+    def station_updated(self, station, is_creation=False):
+        network_persona, _ = Persona.objects.get_or_create(
+            handle=station.network_name_as_handle,
+            name=station.ev_network or 'None',
+            persona_type=PersonaType.NETWORK
+        )
+        state_persona, _ = Persona.objects.get_or_create(
+            handle=station.state_as_handle,
+            name=station.state or 'None',
+            persona_type=PersonaType.STATE
+        )
+        history = station.history.filter()[:2]
+        args = {
+            'station': station,
+            'created_at': timezone.now(),
+            'is_creation': is_creation,
+            'current': dict_from_model(history[0]),
+            'previous': dict_from_model(history[1]) if len(history) > 1 else None,
+        }
+        self.create(persona=network_persona, **args)
+        self.create(persona=state_persona, **args)
+
+    def feed(self, persona=None, station=None):
+        qs = self.all().select_related('persona', 'station')
+        if persona:
+            qs = qs.filter(persona=persona)
+        else:
+            qs = qs.filter(persona__persona_type=PersonaType.NETWORK)
+        if station:
+            qs = qs.filter(station=station)
+        else:
+            qs = qs.filter(station__linked_to__isnull=True)
+        return qs
+
+
+class Update(models.Model):
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE)
+    station = models.ForeignKey(Station, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_creation = models.BooleanField(default=False)
+    current = models.JSONField(blank=True, null=True)
+    previous = models.JSONField(blank=True, null=True)
+
+    objects = UpdateQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['station', 'created_at']),
+        ]
+
+
+def dict_from_model(model):
+    obj = model_to_dict(model)
+    keys_to_del = [f for f in obj if f.startswith('history')]
+    for f in keys_to_del:
+        del obj[f]
+    data = json.dumps(obj, cls=DjangoJSONEncoder)
+    return json.loads(data)
+
+
+def clean_station_json(station_json):
+    if station_json.get('restricted_access', None) is not None:
+        if str(station_json.get('restricted_access', 'false')).lower() == 'false':
+            station_json['restricted_access'] = False
+        else:
+            station_json['restricted_access'] = True
+    if station_json.get('open_date', None):
+        station_json['open_date'] = dateparse.parse_date(station_json['open_date'])
+    if station_json.get('expected_date', None):
+        station_json['expected_date'] = dateparse.parse_date(station_json['expected_date'])
+    if station_json.get('date_last_confirmed', None):
+        station_json['date_last_confirmed'] = dateparse.parse_date(station_json['date_last_confirmed'])
+    if station_json.get('updated_at', None):
+        station_json['updated_at'] = dateparse.parse_datetime(station_json['updated_at'])
