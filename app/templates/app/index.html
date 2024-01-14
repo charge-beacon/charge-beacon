@@ -22,7 +22,9 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block content %}
-    <h1><a href="{% url 'index' %}">EV Charging Station Updates</a></h1>
+    <div class="header">
+        <h1><a href="{% url 'index' %}">EV Charging Station Updates</a></h1>
+    </div>
     <form method="get" id="filter-form">
         <div class="filter-header">
             <div class="search-input">
@@ -45,12 +47,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </form>
-
-    <div class="updates">
+    <div class="updates-container">
         {% for update in updates %}
             <div class="update">
                 <div class="update-header">
-                    <h2>{{ update.station.key }}</h2>
+                    <h3>{{ update.station.key }}</h3>
                     <p>{{ update.created_at|naturaltime }}</p>
                 </div>
                 <div class="update-body">
@@ -60,21 +61,26 @@ document.addEventListener('DOMContentLoaded', function() {
         {% endfor %}
     </div>
 
-    <div class="pagination">
-        <span class="step-links">
-            {% if updates.has_previous %}
-                <a href="{% url_params page=1 %}">&laquo; first</a>
-                <a href="{% url_params page=updates.previous_page_number %}">previous</a>
-            {% endif %}
+    <div class="footer">
+        <div class="pagination">
+            <span class="step-links">
+                {% if updates.has_previous %}
+                    <a href="{% url_params page=1 %}">&laquo; first</a>
+                    <a href="{% url_params page=updates.previous_page_number %}">previous</a>
+                {% endif %}
 
-            <span class="current">
-                Page {{ updates.number }} of {{ updates.paginator.num_pages }}.
+                <span class="current">
+                    Page {{ updates.number }} of {{ updates.paginator.num_pages }}.
+                </span>
+
+                {% if updates.has_next %}
+                    <a href="{% url_params page=updates.next_page_number %}">next</a>
+                    <a href="{% url_params page=updates.paginator.num_pages %}">last &raquo;</a>
+                {% endif %}
             </span>
-
-            {% if updates.has_next %}
-                <a href="{% url_params page=updates.next_page_number %}">next</a>
-                <a href="{% url_params page=updates.paginator.num_pages %}">last &raquo;</a>
-            {% endif %}
-        </span>
+        </div>
+        <div class="footer-links">
+            <span>Created by <a href="https://sam.sutch.net">Samuel Sutch</a></span>
+        </div>
     </div>
 {% endblock %}

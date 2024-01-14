@@ -15,5 +15,61 @@ body {
     font-size: 14px;
     line-height: 20px;
     color: #333333;
-    background-color: #ffffff;
+    background-color: #f6f6f6;
+}
+
+.header {
+    padding: 10px;
+    border-bottom: 1px solid #e8e8e8;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+.header a {
+    text-decoration: none;
+    color: #333333;
+    font-weight: bold;
+}
+
+.filter-header {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e8e8e8;
+    background-color: #f5f5f5;
+    display: flex;
+    column-gap: 10px;
+    justify-content: center;
+}
+
+.search-input {
+
+}
+
+.updates-container {
+    margin: 0 auto;
+    max-width: 500px;
+}
+
+.update {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #e8e8e8;
+    border-radius: 3px;
+    background-color: white;
+}
+
+.footer {
+    padding: 10px;
+    margin-top: 10px;
+    border-top: 1px solid #e8e8e8;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+.footer-links {
+    margin-top: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    column-gap: 10px;
+    justify-content: center;
 }

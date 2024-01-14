@@ -6,7 +6,7 @@ from app.models import Station, Persona, Update
 @admin.register(Station)
 class StationAdmin(SimpleHistoryAdmin):
     list_display = (
-        'id', 'status_code', 'full_address', 'open_date', 'expected_date'
+        'id', 'status_code', 'full_address', 'open_date', 'updated_at'
     )
     search_fields = ['street_address', 'city', 'state', 'zip']
     list_filter = ['ev_network', 'state']
