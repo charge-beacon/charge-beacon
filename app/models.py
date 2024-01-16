@@ -14,24 +14,25 @@ class StationQuerySet(models.QuerySet):
             'updated_at', 'geocode_status', 'latitude', 'longitude', 'city', 'country', 'intersection_directions',
             'plus4', 'state', 'street_address', 'zip', 'ev_connector_types', 'ev_dc_fast_num', 'ev_level1_evse_num',
             'ev_level2_evse_num', 'ev_network', 'ev_network_web', 'ev_other_evse', 'ev_pricing', 'ev_renewable_source',
-            'ev_workplace_charging', 'nps_unit_name',
+            'ev_workplace_charging', 'nps_unit_name', 'ev_network_ids'
         ]
+        no_history_fields = {'updated_at', 'date_last_confirmed'}
         for station in data['fuel_stations']:
             clean_station_json(station)
             qs = self.filter(id=station['id'])
             cobj = Station(**{k: v for k, v in station.items() if k in interesting_fields})
+            updated_fields = []
             if qs.exists():
                 obj = qs.first()
-                has_diff = False
                 for field in interesting_fields:
                     f1 = getattr(obj, field)
                     f2 = getattr(cobj, field)
                     if f1 != f2:
-                        print('diff', field, f1, f2, id(f1), id(f2), type(f1), type(f2))
-                        has_diff = True
-                        setattr(obj, field, getattr(cobj, field))
-                if has_diff:
+                        updated_fields.append(field)
+                        setattr(obj, field, f2)
+                if updated_fields:
                     obj.save()
+                if not all(f in no_history_fields for f in updated_fields):
                     Update.objects.station_updated(obj)
             else:
                 cobj.save()
@@ -47,7 +48,6 @@ class StationQuerySet(models.QuerySet):
             matches[key].append(station)
         for key, stations in matches.items():
             if len(stations) > 1:
-                print(key, len(stations))
                 stations = sorted(stations, key=lambda x: x.id)
                 for station in stations[1:]:
                     if station.linked_to != stations[0]:
@@ -121,8 +121,11 @@ class Station(models.Model):
     ev_pricing = models.TextField(blank=True, null=True)
     ev_renewable_source = models.TextField(blank=True, null=True)
     ev_workplace_charging = models.BooleanField(default=False, blank=True, null=True)
+    ev_network_ids = models.JSONField(blank=True, null=True)
     nps_unit_name = models.TextField(blank=True, null=True)
-    linked_to = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name='linked')
+    linked_to = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, blank=True, null=True, related_name='linked', editable=False
+    )
     history = HistoricalRecords()
 
     objects = StationQuerySet.as_manager()
@@ -208,8 +211,8 @@ class UpdateQuerySet(models.QuerySet):
 
 
 class Update(models.Model):
-    persona = models.ForeignKey(Persona, on_delete=models.CASCADE)
-    station = models.ForeignKey(Station, on_delete=models.CASCADE)
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, editable=False)
+    station = models.ForeignKey(Station, on_delete=models.CASCADE, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_creation = models.BooleanField(default=False)
     current = models.JSONField(blank=True, null=True)
