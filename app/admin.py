@@ -22,8 +22,11 @@ class PersonaAdmin(admin.ModelAdmin):
 
 @admin.register(Update)
 class UpdateAdmin(admin.ModelAdmin):
-    list_display = ('persona', 'created_at')
+    list_display = ('station_full_address', 'created_at')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.select_related('station', 'persona')
+        return qs.select_related('station')
+
+    def station_full_address(self, obj):
+        return f'{obj.station.street_address}, {obj.station.city}, {obj.station.state}'

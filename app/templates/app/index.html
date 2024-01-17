@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load url_params %}
+{% load update_renderer %}
 
 {% block title %}EV Charging Station Updates{% endblock %}
 
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p>{{ update.created_at|naturaltime }}</p>
                 </div>
                 <div class="update-body">
-                    <p>{{ update.update }}</p>
+                    <p>{{ update|render_update }}</p>
                 </div>
             </div>
         {% endfor %}

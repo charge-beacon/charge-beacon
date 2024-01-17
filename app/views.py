@@ -5,13 +5,13 @@ from app.models import Station, Persona, Update
 
 def index(request):
     feed_kwargs = {
-        'persona': None,
         'station': None,
     }
-    if selected_network := request.GET.get('ev_network', None):
-        feed_kwargs['persona'] = Persona.objects.from_network_name(selected_network)
-    elif selected_state := request.GET.get('state', None):
-        feed_kwargs['persona'] = Persona.objects.from_state(selected_state)
+    if selected_networks := get_param(request, 'ev_network'):
+        feed_kwargs['ev_networks'] = selected_networks
+    if selected_states := get_param(request, 'state'):
+        feed_kwargs['states'] = selected_states
+
     queryset = Update.objects.feed(**feed_kwargs)
     paginator = Paginator(queryset, 25)
 
@@ -20,3 +20,7 @@ def index(request):
         'networks': Station.objects.all_networks(),
         'states': Station.objects.all_states(),
     })
+
+
+def get_param(request, name) -> list[str]:
+    return list(filter(bool, request.GET.getlist(name)))

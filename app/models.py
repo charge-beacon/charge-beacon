@@ -176,16 +176,6 @@ class Persona(models.Model):
 
 class UpdateQuerySet(models.QuerySet):
     def station_updated(self, station, is_creation=False):
-        network_persona, _ = Persona.objects.get_or_create(
-            handle=station.network_name_as_handle,
-            name=station.ev_network or 'None',
-            persona_type=PersonaType.NETWORK
-        )
-        state_persona, _ = Persona.objects.get_or_create(
-            handle=station.state_as_handle,
-            name=station.state or 'None',
-            persona_type=PersonaType.STATE
-        )
         history = station.history.filter()[:2]
         args = {
             'station': station,
@@ -194,24 +184,22 @@ class UpdateQuerySet(models.QuerySet):
             'current': dict_from_model(history[0]),
             'previous': dict_from_model(history[1]) if len(history) > 1 else None,
         }
-        self.create(persona=network_persona, **args)
-        self.create(persona=state_persona, **args)
+        self.create(**args)
 
-    def feed(self, persona=None, station=None):
-        qs = self.all().select_related('persona', 'station')
-        if persona:
-            qs = qs.filter(persona=persona)
-        else:
-            qs = qs.filter(persona__persona_type=PersonaType.NETWORK)
+    def feed(self, ev_networks: list[str] = None, states: list[str] = None, station: Station = None):
+        qs = self.all().select_related('station')
         if station:
             qs = qs.filter(station=station)
         else:
             qs = qs.filter(station__linked_to__isnull=True)
+        if ev_networks:
+            qs = qs.filter(station__ev_network__in=ev_networks)
+        if states:
+            qs = qs.filter(station__state__in=states)
         return qs
 
 
 class Update(models.Model):
-    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, editable=False)
     station = models.ForeignKey(Station, on_delete=models.CASCADE, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_creation = models.BooleanField(default=False)
