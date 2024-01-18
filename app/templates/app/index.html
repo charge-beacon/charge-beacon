@@ -52,15 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </form>
     <div class="updates-container">
         {% for update in updates %}
-            <div class="update">
-                <div class="update-header">
-                    <h3>{{ update.station.key }}</h3>
-                    <p>{{ update.created_at|naturaltime }}</p>
-                </div>
-                <div class="update-body">
-                    <p>{{ update|render_update }}</p>
-                </div>
-            </div>
+                {% station_card update %}
         {% endfor %}
     </div>
 

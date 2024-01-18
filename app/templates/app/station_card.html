@@ -1,0 +1,57 @@
+{% load humanize %}
+<div class="station-card">
+    <div class="station-header">
+        <div class="station-title">
+            <h3>
+                {{ station.station_name }}
+                {% if new %}
+                    <span class="station-new-pill">New!</span>
+                {% else %}
+                    <span class="station-update-pill">Updated</span>
+                {% endif %}
+            </h3>
+
+            <div class="station-update-timestamp">{{ timestamp|naturaltime }}</div>
+        </div>
+        <div class="station-address">
+            {{ station.street_address|title }}<br>
+            {{ station.city|title }}, {{ station.state|upper }} {{ station.zip }}
+        </div>
+    </div>
+    <div class="station-data">
+        <div class="station-field">
+            <div class="station-field-name">Plug Types</div>
+            <div class="station-field-value">
+                {{ station.ev_connector_types|join:", " }}
+            </div>
+        </div>
+        <div class="station-field">
+            <div class="station-field-name">DC Fast Plugs</div>
+            <div class="station-field-value">
+                {% if station.ev_dc_fast_num %}{{ station.ev_dc_fast_num }}{% else %}0{% endif %}
+            </div>
+        </div>
+        <div class="station-field">
+            <div class="station-field-name">Level 2 Plugs</div>
+            <div class="station-field-value">
+                {% if station.ev_level2_evse_num %}{{ station.ev_level2_evse_num }}{% else %}0{% endif %}
+            </div>
+        </div>
+    </div>
+    {% if changes %}
+        <h3 class="station-changes-header">Changes</h3>
+        <div class="station-changes">
+            {% for change in changes %}
+                <div class="station-change-field">
+                    {{ change.field_name }}
+                </div>
+                <div class="station-change-previous">
+                    {{ change.previous }}
+                </div>
+                <div class="station-change-current">
+                    {{ change.current }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

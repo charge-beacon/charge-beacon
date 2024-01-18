@@ -1,10 +1,15 @@
 from django import template
-from app.renderer import render_update
+from app.renderer import get_changes
 
 
 register = template.Library()
 
 
-@register.filter(name='render_update')
-def render_update_filter(update):
-    return render_update(update)
+@register.inclusion_tag('app/station_card.html')
+def station_card(update):
+    return {
+        'station': update.station,
+        'new': update.is_creation,
+        'timestamp': update.created_at,
+        'changes': get_changes(update)
+    }

@@ -51,6 +51,7 @@ class StationQuerySet(models.QuerySet):
                 stations = sorted(stations, key=lambda x: x.id)
                 for station in stations[1:]:
                     if station.linked_to != stations[0]:
+                        station.skip_history_when_saving = True
                         station.linked_to = stations[0]
                         station.save()
 
@@ -139,7 +140,7 @@ class Station(models.Model):
         return state_as_handle(self.state)
 
     def key(self):
-        return f'{self.ev_network}: {self.street_address}, {self.city}, {self.state}'
+        return f'{self.ev_network}: {self.street_address}, {self.city}, {self.state}'.lower()
 
 
 def network_name_as_handle(network):

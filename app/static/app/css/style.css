@@ -73,3 +73,95 @@ body {
     column-gap: 10px;
     justify-content: center;
 }
+
+.station-card {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #e8e8e8;
+    border-radius: 3px;
+    background-color: white;
+}
+
+.station-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.station-new-pill {
+    background-color: #28a745;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.station-update-pill {
+    background-color: #ffc107;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.station-data {
+    display: flex;
+    margin-top: 10px;
+}
+
+.station-field {
+    border: 1px solid #e8e8e8;
+    flex-grow: 1;
+}
+
+.station-field:not(:first-child) {
+    margin-left: -1px;
+}
+
+.station-field .station-field-name {
+    font-weight: bold;
+    padding: 5px;
+    background-color: #f5f5f5;
+}
+
+.station-field .station-field-value {
+    padding: 5px;
+}
+
+.station-changes-header {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.station-changes {
+    border: 1px solid #e8e8e8;
+    display: grid;
+    background-color: #e8e8e8;
+    grid-gap: 1px;
+    grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
+}
+
+.station-changes > div {
+    padding: 5px;
+}
+
+.station-change-field {
+    background-color: white
+}
+
+.station-change-data {
+}
+
+.station-change-previous {
+    /* render like a deleted line in a git diff */
+    color: #333333;
+    background-color: #ffe6e6;
+    text-decoration: line-through;
+}
+
+.station-change-current {
+    /* render like an added line in a git diff */
+    color: #333333;
+    background-color: #e6ffe6;
+}

@@ -1,41 +1,41 @@
+from dataclasses import dataclass
+
 from dictdiffer import diff
-from django.utils.safestring import mark_safe
 from app.models import Update, clean_station_json
 from django.utils.translation import gettext as _
 
 
-def render_update(upd: Update) -> str:
-    """Render an update into a string."""
-    result = []
-    if upd.previous is None:
-        result.append('<span class="new-station">New Station</span>')
-        ev_network = LOOKUPS['ev_network'].get(upd.current['ev_network'], upd.current['ev_network'])
-        if upd.current['station_name']:
-            result.append(f'<strong>{upd.current["station_name"]}</strong> ({ev_network})')
-        else:
-            result.append(f'<strong>{ev_network}</strong>')
-        result.append(
-            f'<em>{upd.current["street_address"]}<br> '
-            f'{upd.current["city"]}, {upd.current["state"]} {upd.current["zip"]}</em>'
-        )
-    else:
-        clean_station_json(upd.previous)
-        clean_station_json(upd.current)
-        changes = list(diff(upd.previous, upd.current))
-        for desc, field, change in changes:
-            if desc == 'change':
-                if isinstance(field, list):
-                    field = field[0]
-                fn = field.replace('_', ' ').title()
-                fva = render_field(field, change[0])
-                fvb = render_field(field, change[1])
-                result.append(f'{fn}: <strong>{fva}</strong> -> <strong>{fvb}</strong>')
+@dataclass
+class Change:
+    kind: str
+    field: str
+    field_name: str
+    previous: str
+    current: str
 
-    return mark_safe('<br>'.join(result))
+
+def get_changes(upd: Update) -> [Change]:
+    result = []
+    if not upd.previous:
+        return result
+    clean_station_json(upd.previous)
+    clean_station_json(upd.current)
+    changes = diff(upd.previous, upd.current)
+    for desc, field, change in changes:
+        if desc == 'change':
+            if isinstance(field, list):
+                field = field[0]
+            if field in ignore_fields:
+                continue
+            fn = field.replace('_', ' ').title()
+            fva = render_field(field, change[0])
+            fvb = render_field(field, change[1])
+            result.append(Change('change', field, fn, fva, fvb))
+
+    return result
 
 
 def render_field(field: str, value: str) -> str:
-    """Render a field into a string."""
     if field == 'cards_accepted':
         field_value = ', '.join([LOOKUPS['cards_accepted'].get(v, v) for v in value.split()])
     elif field == 'ev_connector_types':
@@ -47,10 +47,11 @@ def render_field(field: str, value: str) -> str:
     return field_value
 
 
-INTERESTING_FIELDS = [
-
-]
-
+ignore_fields = {
+    'updated_at',
+    'date_last_confirmed',
+    'ev_network_ids'
+}
 
 LOOKUPS = dict(
     status_code={
