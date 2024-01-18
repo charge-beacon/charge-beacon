@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load url_params %}
 {% load update_renderer %}
+{% load static %}
 
 {% block title %}EV Charging Station Updates{% endblock %}
 
@@ -29,7 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 {% block content %}
     <div class="header">
-        <h1><a href="{% url 'index' %}">EV Charging Station Updates</a></h1>
+        <h1>
+            <a href="{% url 'index' %}" title="Charge Beacon home (click to reset filters)">
+                <img src="{% static 'app/img/logo.png' %}" alt="Charge Beacon Logo">
+                <span>Charge Beacon</span>
+            </a>
+        </h1>
+        <p>
+            Subscribe to updates for chargers in your region.
+        </p>
     </div>
     <form method="get" id="filter-form">
         <div class="filter-header">

@@ -26,9 +26,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY-', 'django-insecure-59o*(8*%1r5dcx0r1oq=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "false") == "true"
 
-CSRF_TRUSTED_ORIGINS = ['https://sample-charging.fly.dev', 'https://chargers.sutch.net']
 APP_NAME = os.environ.get("FLY_APP_NAME")
-ALLOWED_HOSTS = [f'{APP_NAME}.fly.dev', 'chargers.sutch.net']
+ALLOWED_HOSTS = [f'{APP_NAME}.fly.dev', 'www.chargebeacon.app', 'chargebeacon.app']
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS]
 
 if DEBUG:
     ALLOWED_HOSTS.append("127.0.0.1")
