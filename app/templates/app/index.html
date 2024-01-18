@@ -9,17 +9,20 @@
 {% block script_extra %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const state = document.getElementById('state');
-    const ev_network = document.getElementById('ev_network');
+    const interestingFields = [
+        'state',
+        'ev_network',
+        'dc_fast',
+        'only_new',
+    ];
     const filter_form = document.getElementById('filter-form');
 
-    state.addEventListener('change', function() {
-        filter_form.submit();
-    });
-
-    ev_network.addEventListener('change', function() {
-        filter_form.submit();
-    });
+    for (const field of interestingFields) {
+        const el = document.getElementById(field);
+        el.addEventListener('change', function() {
+            filter_form.submit();
+        });
+    }
 });
 </script>
 {% endblock %}
@@ -47,6 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="{{ ev_network.id }}" {% if request.GET.ev_network == ev_network.id %}selected{% endif %}>{{ ev_network.name }} ({{ ev_network.count }})</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="search-input-group">
+                <div class="search-input">
+                    <label for="dc_fast">DC Fast</label>
+                    <input type="checkbox" name="dc_fast" id="dc_fast" value="true" {% if request.GET.dc_fast == 'true' %}checked{% endif %}>
+                </div>
+                <div class="search-input">
+                    <label for="only_new">Only Show New</label>
+                    <input type="checkbox" name="only_new" id="only_new" value="true" {% if request.GET.only_new == 'true' %}checked{% endif %}>
+                </div>
             </div>
         </div>
     </form>

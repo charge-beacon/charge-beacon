@@ -1,5 +1,6 @@
 h1 {
     font-size: 200%;
+    line-height: 1.2;
 }
 
 h2 {
@@ -41,8 +42,27 @@ body {
     justify-content: center;
 }
 
-.search-input {
+@media (max-width: 750px) {
+    .filter-header {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+}
 
+.search-input-group {
+    flex-shrink: 0;
+    display: flex;
+    column-gap: 10px;
+}
+
+.search-input {
+    display: flex;
+    align-items: center;
+}
+
+.search-input label {
+    padding-right: 10px;
 }
 
 .updates-container {
@@ -129,6 +149,27 @@ body {
     padding: 5px;
 }
 
+.station-details {
+    margin-top: 10px;
+}
+
+.station-detail {
+    display: flex;
+    border: 1px solid #e8e8e8;
+    background-color: white;
+    margin-top: -1px;
+}
+
+.station-detail-name {
+    font-weight: bold;
+    padding: 5px;
+    min-width: 25%;
+}
+
+.station-detail-value {
+    padding: 5px;
+}
+
 .station-changes-header {
     margin-bottom: 10px;
     margin-top: 10px;
@@ -142,12 +183,19 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
 }
 
+@media (max-width: 500px) {
+    .station-changes {
+        grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+    }
+}
+
 .station-changes > div {
     padding: 5px;
 }
 
 .station-change-field {
-    background-color: white
+    background-color: white;
+    font-weight: bold;
 }
 
 .station-change-data {

@@ -1,4 +1,6 @@
 {% load humanize %}
+{% load update_renderer %}
+
 <div class="station-card">
     <div class="station-header">
         <div class="station-title">
@@ -22,7 +24,9 @@
         <div class="station-field">
             <div class="station-field-name">Plug Types</div>
             <div class="station-field-value">
-                {{ station.ev_connector_types|join:", " }}
+                {% for ct in station.ev_connector_types %}
+                    {{ ct|station_field:"ev_connector_types" }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
             </div>
         </div>
         <div class="station-field">
@@ -52,6 +56,45 @@
                     {{ change.current }}
                 </div>
             {% endfor %}
+        </div>
+    {% else %}
+        <div class="station-details">
+            <div class="station-detail">
+                <div class="station-detail-name">Network</div>
+                <div class="station-detail-value">
+                    {{ station.ev_network|station_field:"ev_network" }}
+                </div>
+            </div>
+            <div class="station-detail">
+                <div class="station-detail-name">Status</div>
+                <div class="station-detail-value">
+                    {{ station.status_code|station_field:"status_code" }}
+                </div>
+            </div>
+            {% if station.access_code %}
+                <div class="station-detail">
+                    <div class="station-detail-name">Access</div>
+                    <div class="station-detail-value">
+                        {{ station.access_code|station_field:"access_code" }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if station.access_detail_code %}
+                <div class="station-detail">
+                    <div class="station-detail-name">Access Details</div>
+                    <div class="station-detail-value">
+                        {{ station.access_detail_code|station_field:"access_detail_code" }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if station.expected_date %}
+                <div class="station-detail">
+                    <div class="station-detail-name">Expected Date</div>
+                    <div class="station-detail-value">
+                        {{ station.expected_date }}
+                    </div>
+                </div>
+            {% endif %}
         </div>
     {% endif %}
 </div>

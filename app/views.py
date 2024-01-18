@@ -13,6 +13,13 @@ def index(request):
         feed_kwargs['states'] = selected_states
 
     queryset = Update.objects.feed(**feed_kwargs)
+
+    if request.GET.get('dc_fast', None) == 'true':
+        queryset = queryset.filter(station__ev_dc_fast_num__gt=0)
+
+    if request.GET.get('only_new', None) == 'true':
+        queryset = queryset.filter(is_creation=True)
+
     paginator = Paginator(queryset, 25)
 
     return render(request, 'app/index.html', {
