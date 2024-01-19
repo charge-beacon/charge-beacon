@@ -63,26 +63,31 @@ class StationQuerySet(models.QuerySet):
     def all_networks(self):
         count = models.Count('ev_network', filter=models.Q(linked_to__isnull=True))
         result = self.values('ev_network').annotate(count=count).order_by('ev_network')
+        networks = []
         for r in result:
             name = r['ev_network'] or 'None'
-            yield {
+            networks.append({
                 'name': name.replace('_', ' ').title(),
                 'id': r['ev_network'] or 'None',
                 'handle': network_name_as_handle(r['ev_network']),
                 'count': r['count'],
-            }
+            })
+        return sorted(networks, key=lambda x: x['name'])
 
     def all_states(self):
         count = models.Count('state', filter=models.Q(linked_to__isnull=True))
         result = self.values('state').annotate(count=count).order_by('state')
+        states = []
         for r in result:
-            name = r['state'] or 'None'
-            yield {
-                'name': name.upper(),
+            if not r['state']:
+                continue
+            states.append({
+                'name': r['state'].upper(),
                 'id': r['state'] or 'None',
                 'handle': state_as_handle(r['state']),
                 'count': r['count'],
-            }
+            })
+        return sorted(states, key=lambda x: x['name'])
 
 
 NAME_ARGS = (

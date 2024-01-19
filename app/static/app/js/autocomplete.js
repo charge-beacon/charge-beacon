@@ -125,8 +125,6 @@ function createToken(wrapper, value) {
     close.setAttribute("tabindex", "-1");
     close.setAttribute("data-option", value);
     close.setAttribute("data-hits", 0);
-    close.setAttribute("href", "#");
-    close.innerText = "⨯";
     close.addEventListener("click", removeToken)
     token.appendChild(token_span);
     token.appendChild(close);

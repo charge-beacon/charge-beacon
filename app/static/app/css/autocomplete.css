@@ -69,6 +69,10 @@ select[data-multi-select-plugin] {
 	font-weight: 700;
 	cursor: pointer;
     margin-right: 4px;
+    height: 14px;
+    width: 14px;
+    background-image: url(../img/iconmonstr-x-mark-9.svg);
+    background-size: 14px;
 }
 
 .search-container {
