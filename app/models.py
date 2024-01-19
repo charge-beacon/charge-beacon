@@ -1,7 +1,9 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import dateparse, timezone
 from django.core.serializers.json import json, DjangoJSONEncoder
 from simple_history.models import HistoricalRecords
+import randomname
 from django.forms import model_to_dict
 
 
@@ -83,8 +85,31 @@ class StationQuerySet(models.QuerySet):
             }
 
 
+NAME_ARGS = (
+    list({
+        'verbs/driving', 'verbs/movement', 'verbs/thought', 'verbs/graphics', 'verbs/creation',
+        'verbs/art', 'verbs/sports', 'verbs/music_production', 'verbs/cooking', 'verbs/music',
+        'verbs/communication'
+    }),
+    list({
+        'nouns/driving', 'nouns/water', 'nouns/storage', 'nouns/fortifications', 'nouns/sports',
+        'nouns/geography', 'nouns/physics', 'nouns/minerals', 'nouns/infrastructure', 'nouns/filmmaking',
+        'nouns/typography', 'nouns/architecture', 'nouns/astronomy', 'nouns/geometry', 'nouns/music_instruments',
+        'nouns/dogs', 'nouns/metals', 'nouns/construction',
+    }),
+)
+
+
+def get_beacon_name():
+    name = randomname.generate(*NAME_ARGS)
+    while Station.objects.filter(beacon_name=name).exists():
+        name = randomname.get_name()
+    return name
+
+
 class Station(models.Model):
     id = models.IntegerField(primary_key=True)
+    beacon_name = models.SlugField(max_length=255, default=get_beacon_name, unique=True)
     access_code = models.TextField(blank=True, null=True)
     access_days_time = models.TextField(blank=True, null=True)
     access_detail_code = models.TextField(blank=True, null=True)
@@ -138,6 +163,9 @@ class Station(models.Model):
     @property
     def state_as_handle(self):
         return state_as_handle(self.state)
+
+    def get_absolute_url(self):
+        return reverse('station', args=[self.beacon_name])
 
     def key(self):
         return f'{self.ev_network}: {self.street_address}, {self.city}, {self.state}'.lower()
@@ -214,6 +242,9 @@ class Update(models.Model):
         indexes = [
             models.Index(fields=['station', 'created_at']),
         ]
+
+    def get_absolute_url(self):
+        return f'{self.station.get_absolute_url()}#update-{self.id}'
 
 
 def dict_from_model(model):

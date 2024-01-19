@@ -2,30 +2,66 @@
 
 {% load humanize %}
 {% load url_params %}
-{% load update_renderer %}
 {% load static %}
 
-{% block title %}EV Charging Station Updates{% endblock %}
+{% block meta %}
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:site" content="@samuelsutch"/>
+    <meta name="twitter:title" content="Charge Beacon"/>
+    <meta name="twitter:description" content="Subscribe to updates for chargers in your region."/>
+    <meta name="twitter:image" content="{{ base_uri }}{% static 'app/img/logo.png' %}"/>
+
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="Charge Beacon"/>
+    <meta property="og:description" content="Subscribe to updates for chargers in your region."/>
+    <meta property="og:url" content="{{ request.build_absolute_uri }}"/>
+    <meta property="og:image" content="{{ base_uri }}{% static 'app/img/logo.png' %}"/>
+
+    <link id="updates-feed-link" rel="alternate" type="application/rss+xml" title="RSS" href="{{ feed_url }}">
+
+{% endblock %}
+
+{% block title %}Charge Beacon - EV Charging Station Updates{% endblock %}
+
+{% block style_extra %}
+    <link rel="stylesheet" href="{% static 'app/css/autocomplete.css' %}">
+{% endblock %}
 
 {% block script_extra %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const interestingFields = [
-        'state',
-        'ev_network',
-        'dc_fast',
-        'only_new',
-    ];
-    const filter_form = document.getElementById('filter-form');
+    <script src="{% static 'app/js/autocomplete.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const interestingFields = [
+                'ev_state',
+                'ev_network',
+                'dc_fast',
+                'only_new',
+            ];
 
-    for (const field of interestingFields) {
-        const el = document.getElementById(field);
-        el.addEventListener('change', function() {
-            filter_form.submit();
+            const form = document.getElementById('search-inputs');
+            const feedLink = document.getElementById('updates-feed-link');
+            const feedAnchor = document.getElementById('updates-feed-anchor');
+
+            for (const field of interestingFields) {
+                const el = document.getElementById(field);
+                el.addEventListener('change', function () {
+                    const formData = new FormData(form);
+                    const params = new URLSearchParams(formData);
+                    window.history.pushState({}, '', `?${params.toString()}`);
+                    const newFullURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                    feedLink.href = newFullURL;
+                    feedAnchor.href = newFullURL;
+                    fetch(`/updates_partial?${params.toString()}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            const container = document.getElementById('updates-container');
+                            container.innerHTML = html;
+                        });
+                });
+            }
         });
-    }
-});
-</script>
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -40,64 +76,65 @@ document.addEventListener('DOMContentLoaded', function() {
             Subscribe to updates for chargers in your region.
         </p>
     </div>
-    <form method="get" id="filter-form">
-        <div class="filter-header">
+    <div class="filter-instructions">
+        <p>
+            <strong>Step 1: </strong>Configure a filter
+        </p>
+        <p>
+            <strong>Step 2: </strong>Subscribe to the
+            <a id="updates-feed-anchor" href="{{ feed_url }}">RSS feed</a>
+            (more ways to subscribe coming soon!)
+        </p>
+    </div>
+    <div class="filter-header">
+    <form id="search-inputs" method="get">
+        <div class="search-form">
             <div class="search-input">
-                <label for="state">State</label>
-                <select name="state" id="state">
-                    <option value="">---</option>
+                <label for="ev_state">States</label>
+                <select name="ev_state" id="ev_state" multiple data-multi-select-plugin>
                     {% for state in states %}
-                        <option value="{{ state.id }}" {% if request.GET.state == state.id %}selected{% endif %}>{{ state.name }} ({{ state.count }})</option>
+                        <option value="{{ state.id }}"
+                                {% if state.id in selected_states %}selected{% endif %}>
+                            {{ state.name }} ({{ state.count }})
+                        </option>
                     {% endfor %}
                 </select>
             </div>
             <div class="search-input">
-                <label for="ev_network">EV Network</label>
-                <select name="ev_network" id="ev_network">
-                    <option value="">---</option>
+                <label for="ev_network">EV Networks</label>
+                <select name="ev_network" id="ev_network" multiple data-multi-select-plugin>
                     {% for ev_network in networks %}
-                        <option value="{{ ev_network.id }}" {% if request.GET.ev_network == ev_network.id %}selected{% endif %}>{{ ev_network.name }} ({{ ev_network.count }})</option>
+                        <option value="{{ ev_network.id }}"
+                                {% if ev_network.id in selected_networks %}selected{% endif %}>
+                            {{ ev_network.name }} ({{ ev_network.count }})
+                        </option>
                     {% endfor %}
                 </select>
             </div>
             <div class="search-input-group">
                 <div class="search-input">
                     <label for="dc_fast">DC Fast</label>
-                    <input type="checkbox" name="dc_fast" id="dc_fast" value="true" {% if request.GET.dc_fast == 'true' %}checked{% endif %}>
+                    <input type="checkbox" name="dc_fast" id="dc_fast" value="true"
+                           {% if request.GET.dc_fast == 'true' %}checked{% endif %}>
                 </div>
                 <div class="search-input">
                     <label for="only_new">Only Show New</label>
-                    <input type="checkbox" name="only_new" id="only_new" value="true" {% if request.GET.only_new == 'true' %}checked{% endif %}>
+                    <input type="checkbox" name="only_new" id="only_new" value="true"
+                           {% if request.GET.only_new == 'true' %}checked{% endif %}>
                 </div>
             </div>
         </div>
     </form>
-    <div class="updates-container">
-        {% for update in updates %}
-                {% station_card update %}
-        {% endfor %}
+
+    <div class="updates-container" id="updates-container">
+        {% include 'app/updates_body.html' %}
     </div>
 
     <div class="footer">
-        <div class="pagination">
-            <span class="step-links">
-                {% if updates.has_previous %}
-                    <a href="{% url_params page=1 %}">&laquo; first</a>
-                    <a href="{% url_params page=updates.previous_page_number %}">previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ updates.number }} of {{ updates.paginator.num_pages }}.
-                </span>
-
-                {% if updates.has_next %}
-                    <a href="{% url_params page=updates.next_page_number %}">next</a>
-                    <a href="{% url_params page=updates.paginator.num_pages %}">last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
         <div class="footer-links">
-            <span>Created by <a href="https://sam.sutch.net">Samuel Sutch</a></span>
+            <span>Created by<br><a href="https://sam.sutch.net" target="_blank">Samuel Sutch</a></span><br>
+            <span>Data provided by<br><a href="https://developer.nrel.gov/" target="_blank">NREL</a></span><br>
+            <span>Find us on<br><a href="https://github.com/charge-beacon/charge-beacon" target="_blank">GitHub</a></span>
         </div>
     </div>
 {% endblock %}

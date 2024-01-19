@@ -9,7 +9,7 @@ class SyncingTest(TestCase):
     def test_sync_initial_change(self):
         Station.objects.import_from_nrel(_get_sync_data())
         self.assertEqual(Station.objects.count(), 1)
-        self.assertEqual(Update.objects.count(), 2)
+        self.assertEqual(Update.objects.count(), 1)
         for u in Update.objects.all():
             self.assertTrue(u.is_creation)
 
@@ -17,7 +17,7 @@ class SyncingTest(TestCase):
         Station.objects.import_from_nrel(_get_sync_data())
         Station.objects.import_from_nrel(_get_sync_data())
         self.assertEqual(Station.objects.count(), 1)
-        self.assertEqual(Update.objects.count(), 2)
+        self.assertEqual(Update.objects.count(), 1)
 
     def test_sync_with_datetime_update(self):
         Station.objects.import_from_nrel(_get_sync_data())
@@ -26,7 +26,7 @@ class SyncingTest(TestCase):
         data = _get_sync_data(updated_at=new_date_str)
         Station.objects.import_from_nrel(data)
         self.assertEqual(Station.objects.count(), 1)
-        self.assertEqual(Update.objects.count(), 2)
+        self.assertEqual(Update.objects.count(), 1)
         # verify field updated
         station = Station.objects.first()
         self.assertEqual(station.updated_at, new_date)
@@ -39,13 +39,16 @@ class SyncingTest(TestCase):
             groups_with_access_code='TEMPORARILY UNAVAILABLE (Public)',
         )
         Station.objects.import_from_nrel(data)
+        og_beacon_name = Station.objects.first().beacon_name
         self.assertEqual(Station.objects.count(), 1)
-        self.assertEqual(Update.objects.count(), 4)
-        self.assertEqual(Update.objects.filter(is_creation=False).count(), 2)
+        self.assertEqual(Update.objects.count(), 2)
+        self.assertEqual(Update.objects.filter(is_creation=False).count(), 1)
         # verify field updated
         station = Station.objects.first()
         self.assertEqual(station.status_code, 'T')
         self.assertEqual(station.groups_with_access_code, 'TEMPORARILY UNAVAILABLE (Public)')
+        # verify beacon name not updated
+        self.assertEqual(station.beacon_name, og_beacon_name)
 
     def test_link_stations(self):
         Station.objects.import_from_nrel(load_test_stations())

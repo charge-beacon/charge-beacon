@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.humanize',
     'simple_history',
+    'plausible_proxy',
     'app'
 ]
 
@@ -147,3 +148,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SITE_ID = 1
 
 NREL_API_KEY = os.environ.get('NREL_API_KEY', '')
+
+PLAUSIBLE_SCRIPT_PREFIX = 'plsbl/js'

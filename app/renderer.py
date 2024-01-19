@@ -48,7 +48,8 @@ def render_field(field: str, value: str) -> str:
 ignore_fields = {
     'updated_at',
     'date_last_confirmed',
-    'ev_network_ids'
+    'ev_network_ids',
+    'beacon_name'
 }
 
 LOOKUPS = dict(

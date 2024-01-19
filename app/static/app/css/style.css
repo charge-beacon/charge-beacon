@@ -18,6 +18,13 @@ body {
     background-color: rgb(242, 250, 251);
 }
 
+@media (max-width: 750px) {
+    .site {
+        margin: 0 15px;
+    }
+}
+
+
 .header {
     margin-top: 5px;
     padding: 10px;
@@ -44,40 +51,58 @@ body {
 }
 
 .filter-header {
-    padding: 10px;
-    margin-bottom: 10px;
-    margin-top: 10px;
-    display: flex;
-    column-gap: 10px;
-    justify-content: center;
+    margin: 10px auto;
+    max-width: 500px;
 }
 
 @media (max-width: 750px) {
     .filter-header {
         justify-content: flex-start;
-        flex-wrap: wrap;
-        row-gap: 10px;
+    }
+}
+
+@media (max-width: 320px) {
+    .search-input-group {
+        flex-direction: column;
     }
 }
 
 .search-input-group {
-    flex-shrink: 0;
     display: flex;
-    column-gap: 10px;
+    column-gap: 31px;
 }
 
 .search-input {
     display: flex;
     align-items: center;
+    /*width: 100%;*/
+    min-height: 31px;
+    margin-bottom: 10px;
 }
 
 .search-input label {
     padding-right: 10px;
+    min-width: 125px;
+    line-height: 31px;
+    height: 100%;
+}
+
+.search-input input {
+    height: 100%;
 }
 
 .updates-container {
     margin: 0 auto;
     max-width: 500px;
+}
+
+.filter-instructions {
+    max-width: 500px;
+    margin: 10px auto 20px;
+}
+
+.filter-instructions p {
+    margin-bottom: 10px;
 }
 
 .update {
@@ -86,6 +111,12 @@ body {
     border: 1px solid #e8e8e8;
     border-radius: 3px;
     background-color: white;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .footer {
@@ -103,6 +134,13 @@ body {
     justify-content: center;
 }
 
+.footer-links span {
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #e8e8e8;
+}
+
 .station-card {
     padding: 10px;
     margin-bottom: 10px;
@@ -114,6 +152,7 @@ body {
 .station-title {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 10px;
 }
 
 .station-new-pill {

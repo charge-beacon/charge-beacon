@@ -1,0 +1,24 @@
+{% load update_renderer %}
+{% load url_params %}
+
+{% for update in updates %}
+    {% station_card update %}
+{% endfor %}
+
+<div class="pagination">
+    <span class="step-links">
+        {% if updates.has_previous %}
+            <a href="{% url_params page=1 %}">&laquo; first</a>
+            <a href="{% url_params page=updates.previous_page_number %}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ updates.number }} of {{ updates.paginator.num_pages }}.
+        </span>
+
+        {% if updates.has_next %}
+            <a href="{% url_params page=updates.next_page_number %}">next</a>
+            <a href="{% url_params page=updates.paginator.num_pages %}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
