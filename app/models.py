@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import dateparse, timezone
 from django.core.serializers.json import json, DjangoJSONEncoder
@@ -233,7 +234,10 @@ class UpdateQuerySet(models.QuerySet):
         if states:
             qs = qs.filter(station__state__in=states)
         if ev_connector_types:
-            qs = qs.filter(station__ev_connector_types__contains=ev_connector_types)
+            q = Q()
+            for t in ev_connector_types:
+                q |= Q(station__ev_connector_types__contains=t)
+            qs = qs.filter(q)
         return qs
 
 

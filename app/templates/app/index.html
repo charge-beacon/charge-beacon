@@ -118,7 +118,7 @@
                     <option value="">Any</option>
                     {% for plug_value, plug_name in plug_types.items %}
                         <option value="{{ plug_value }}"
-                                {% if plug_name in selected_plug_types %}selected{% endif %}>
+                                {% if plug_value in selected_plug_types %}selected{% endif %}>
                             {{ plug_name }}
                         </option>
                     {% endfor %}
