@@ -37,6 +37,7 @@
                 'ev_network',
                 'dc_fast',
                 'only_new',
+                'plug_types',
             ];
 
             const form = document.getElementById('search-inputs');
@@ -111,6 +112,18 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="search-input">
+                <label for="plug_types">Plug Types</label>
+                <select name="plug_types" id="plug_types" multiple data-multi-select-plugin>
+                    <option value="">Any</option>
+                    {% for plug_value, plug_name in plug_types.items %}
+                        <option value="{{ plug_value }}"
+                                {% if plug_name in selected_plug_types %}selected{% endif %}>
+                            {{ plug_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="search-input-group">
                 <div class="search-input">
                     <label for="dc_fast">DC Fast</label>
@@ -134,7 +147,8 @@
         <div class="footer-links">
             <span>Created by<br><a href="https://sam.sutch.net" target="_blank">Samuel Sutch</a></span><br>
             <span>Data provided by<br><a href="https://developer.nrel.gov/" target="_blank">NREL</a></span><br>
-            <span>Find us on<br><a href="https://github.com/charge-beacon/charge-beacon" target="_blank">GitHub</a></span>
+            <span>Find us on<br><a href="https://github.com/charge-beacon/charge-beacon"
+                                   target="_blank">GitHub</a></span>
         </div>
     </div>
 {% endblock %}

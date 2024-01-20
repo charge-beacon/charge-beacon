@@ -222,7 +222,7 @@ class UpdateQuerySet(models.QuerySet):
         }
         self.create(**args)
 
-    def feed(self, ev_networks: list[str] = None, states: list[str] = None, station: Station = None):
+    def feed(self, ev_networks: list[str] = None, states: list[str] = None, ev_connector_types: list[str] = None, station: Station = None):
         qs = self.all().select_related('station')
         if station:
             qs = qs.filter(station=station)
@@ -232,6 +232,8 @@ class UpdateQuerySet(models.QuerySet):
             qs = qs.filter(station__ev_network__in=ev_networks)
         if states:
             qs = qs.filter(station__state__in=states)
+        if ev_connector_types:
+            qs = qs.filter(station__ev_connector_types__contains=ev_connector_types)
         return qs
 
 

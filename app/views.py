@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from app.models import Station, Update
 from app.renderer import get_changes
+from app.constants import LOOKUPS
 
 
 def index(request):
@@ -32,6 +33,8 @@ def get_updates_context(request):
         feed_kwargs['ev_networks'] = selected_networks
     if selected_states := get_param(request, 'ev_state'):
         feed_kwargs['states'] = selected_states
+    if selected_plug_types := get_param(request, 'plug_types'):
+        feed_kwargs['ev_connector_types'] = selected_plug_types
 
     queryset = Update.objects.feed(**feed_kwargs)
 
@@ -51,6 +54,8 @@ def get_updates_context(request):
         'selected_networks': selected_networks,
         'states': Station.objects.all_states(),
         'selected_states': selected_states,
+        'plug_types': LOOKUPS['ev_connector_types'],
+        'selected_plug_types': selected_plug_types,
         'feed_url': f'{base_uri}{reverse("updates-feed")}?{request.GET.urlencode()}',
     }
 
