@@ -95,7 +95,7 @@
                     {% for state in states %}
                         <option value="{{ state.id }}"
                                 {% if state.id in selected_states %}selected{% endif %}>
-                            {{ state.name }} ({{ state.count }})
+                            {{ state.name }}
                         </option>
                     {% endfor %}
                 </select>
@@ -106,7 +106,7 @@
                     {% for ev_network in networks %}
                         <option value="{{ ev_network.id }}"
                                 {% if ev_network.id in selected_networks %}selected{% endif %}>
-                            {{ ev_network.name }} ({{ ev_network.count }})
+                            {{ ev_network.name }}
                         </option>
                     {% endfor %}
                 </select>

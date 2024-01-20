@@ -5,6 +5,7 @@ from django.core.serializers.json import json, DjangoJSONEncoder
 from simple_history.models import HistoricalRecords
 import randomname
 from django.forms import model_to_dict
+from app.constants import LOOKUPS, US_ABBREV_TO_STATE
 
 
 class StationQuerySet(models.QuerySet):
@@ -66,8 +67,9 @@ class StationQuerySet(models.QuerySet):
         networks = []
         for r in result:
             name = r['ev_network'] or 'None'
+            name = LOOKUPS['ev_network'].get(name, name)
             networks.append({
-                'name': name.replace('_', ' ').title(),
+                'name': name,
                 'id': r['ev_network'] or 'None',
                 'handle': network_name_as_handle(r['ev_network']),
                 'count': r['count'],
@@ -82,8 +84,8 @@ class StationQuerySet(models.QuerySet):
             if not r['state']:
                 continue
             states.append({
-                'name': r['state'].upper(),
-                'id': r['state'] or 'None',
+                'name': US_ABBREV_TO_STATE.get(r['state'].upper(), r['state']),
+                'id': r['state'],
                 'handle': state_as_handle(r['state']),
                 'count': r['count'],
             })

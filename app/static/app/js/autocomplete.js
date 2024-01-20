@@ -55,11 +55,11 @@ function addPlaceholder(wrapper) {
 // Function that create the initial set of tokens with the options selected by the users
 function createInitialTokens(select) {
     let {
-        options_selected
+        options_selected, display_values
     } = getOptions(select);
     const wrapper = select.parentNode;
     for (let i = 0; i < options_selected.length; i++) {
-        createToken(wrapper, options_selected[i]);
+        createToken(wrapper, options_selected[i], display_values[options_selected[i]]);
     }
 }
 
@@ -112,14 +112,14 @@ function openOptions(e) {
 }
 
 // Function that create a token inside of a wrapper with the given value
-function createToken(wrapper, value) {
+function createToken(wrapper, value, displayValue) {
     const search = wrapper.querySelector(".search-container");
     // Create token wrapper
     const token = document.createElement("div");
     token.classList.add("selected-wrapper");
     const token_span = document.createElement("span");
     token_span.classList.add("selected-label");
-    token_span.innerText = value;
+    token_span.innerText = displayValue;
     const close = document.createElement("span");
     close.classList.add("selected-close");
     close.setAttribute("tabindex", "-1");
@@ -169,7 +169,7 @@ function clearAutocompleteList(select) {
 // Populate the autocomplete list following a given query from the user
 function populateAutocompleteList(select, query, dropdown = false) {
     const {
-        autocomplete_options
+        autocomplete_options, display_values
     } = getOptions(select);
 
 
@@ -183,14 +183,15 @@ function populateAutocompleteList(select, query, dropdown = false) {
     autocomplete_list.innerHTML = "";
     const result_size = options_to_show.length;
 
-    if (result_size == 1) {
+    if (result_size === 1) {
 
         const li = document.createElement("li");
-        li.innerText = options_to_show[0];
+        li.innerText = display_values[options_to_show[0]];
         li.setAttribute('data-value', options_to_show[0]);
+        li.setAttribute('data-displayvalue', display_values[options_to_show[0]]);
         li.addEventListener("click", selectOption);
         autocomplete_list.appendChild(li);
-        if (query.length == options_to_show[0].length) {
+        if (query.length === options_to_show[0].length) {
             const event = new Event('click');
             li.dispatchEvent(event);
 
@@ -199,8 +200,9 @@ function populateAutocompleteList(select, query, dropdown = false) {
 
         for (let i = 0; i < result_size; i++) {
             const li = document.createElement("li");
-            li.innerText = options_to_show[i];
+            li.innerText = display_values[options_to_show[i]];
             li.setAttribute('data-value', options_to_show[i]);
+            li.setAttribute('data-displayvalue', display_values[options_to_show[i]]);
             li.addEventListener("click", selectOption);
             autocomplete_list.appendChild(li);
         }
@@ -221,7 +223,8 @@ function selectOption(e) {
     const option = wrapper.querySelector(`select option[value="${e.target.dataset.value}"]`);
 
     option.setAttribute("selected", "");
-    createToken(wrapper, e.target.dataset.value);
+
+    createToken(wrapper, e.target.dataset.value, e.target.dataset.displayvalue);
     if (input_search.value) {
         input_search.value = "";
     }
@@ -271,6 +274,13 @@ function getOptions(select) {
     // Get the options that are selected from the user
     const options_selected = Array.from(select.querySelectorAll("option:checked")).map(el => el.value);
 
+    const display_values = {};
+
+    // get the display name of all options
+    select.querySelectorAll("option").forEach(el => {
+        display_values[el.value] = el.innerText.trim();
+    });
+
     // Create an autocomplete options array with the options that are not selected by the user
     const autocomplete_options = [];
     all_options.forEach(option => {
@@ -282,7 +292,7 @@ function getOptions(select) {
     autocomplete_options.sort();
 
     return {
-        options_selected, autocomplete_options
+        options_selected, autocomplete_options, display_values
     };
 
 }
@@ -319,7 +329,7 @@ function deletePressed(e) {
         const last_token_x = tokens[tokens.length - 1].querySelector("a");
         let hits = +last_token_x.dataset.hits;
 
-        if (key == 8 || key == 46) {
+        if (key === 8 || key === 46) {
             if (!input_search.value) {
 
                 if (hits > 1) {
