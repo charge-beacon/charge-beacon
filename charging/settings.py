@@ -150,3 +150,12 @@ SITE_ID = 1
 NREL_API_KEY = os.environ.get('NREL_API_KEY', '')
 
 PLAUSIBLE_SCRIPT_PREFIX = 'plsbl/js'
+
+if SENTRY_DSN := os.environ.get('SENTRY_DSN', None):
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )

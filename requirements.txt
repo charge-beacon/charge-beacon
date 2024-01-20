@@ -7,3 +7,4 @@ dj-database-url~=2.1.0
 dictdiffer~=0.9.0
 randomname~=0.2.1
 django-plausible-proxy~=0.5.1
+sentry_sdk~=1.39.2
