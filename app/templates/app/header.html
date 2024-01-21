@@ -1,0 +1,22 @@
+{% load static %}
+
+<div class="header">
+    <h1>
+        <a href="{% url 'index' %}" title="Charge Beacon home (click to reset filters)">
+            <img src="{% static 'app/img/logo.png' %}" alt="Charge Beacon Logo">
+            <span>Charge Beacon</span>
+        </a>
+    </h1>
+    {% if not request.user.is_anonymous %}
+        <div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Logout</button>
+        </form>
+        </div>
+    {% else %}
+    <p>
+        Subscribe to updates for chargers in your region.
+    </p>
+    {% endif %}
+</div>

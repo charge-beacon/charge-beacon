@@ -2,7 +2,7 @@
 {% load plausible %}
 
 <!doctype html>
-<html class="no-js" lang="">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -10,10 +10,9 @@
 
     <title>{% block title %}{% endblock %}</title>
 
+    {% block style_extra %}
     <link rel="stylesheet" href="{% static 'app/css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
-
-    {% block style_extra %}
     {% endblock %}
 
     {% plausible domain=request.get_host script='script.js' %}
@@ -22,6 +21,19 @@
     {% endblock %}
 
     {% block meta %}
+
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@samuelsutch"/>
+        <meta name="twitter:title" content="Charge Beacon"/>
+        <meta name="twitter:description" content="Subscribe to updates for chargers in your region."/>
+        <meta name="twitter:image" content="{{ base_uri }}{% static 'app/img/logo.png' %}"/>
+
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Charge Beacon"/>
+        <meta property="og:description" content="Subscribe to updates for chargers in your region."/>
+        <meta property="og:url" content="{{ request.build_absolute_uri }}"/>
+        <meta property="og:image" content="{{ base_uri }}{% static 'app/img/logo.png' %}"/>
+
     {% endblock %}
 
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -30,12 +42,10 @@
     <link rel="apple-touch-icon" href="{% static 'app/img/apple-touch-icon.png' %}">
 </head>
 
-<body class="{% block bodyclass %}{% endblock %}">
+<body>
 
-<div class="site{% block siteclass %}{% endblock %}">
 {% block content %}
 {% endblock %}
-</div>
 
 </body>
 

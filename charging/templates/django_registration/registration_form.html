@@ -1,0 +1,12 @@
+{% extends "app/modal.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block modal %}
+
+    <h3>Register</h3>
+    <p class="text-secondary">Creating an account is completely free.</p>
+    {% crispy form helper %}
+    <p>{% trans "Already have an account" %}? <a href="{% url 'login' %}">{% trans "Login" %}</a>!</p>
+
+{% endblock %}
