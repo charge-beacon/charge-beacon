@@ -1,10 +1,7 @@
-{% extends 'app/base.html' %}
-
-{% load static %}
-{% load django_bootstrap5 %}
+{% extends 'app/bs_base.html' %}
 
 {% block style_extra %}
-    {% bootstrap_css %}
+    {{ block.super }}
     <style>
         .single {
             max-width: 500px;
@@ -13,25 +10,10 @@
     </style>
 {% endblock %}
 
-{% block script_extra %}
-    {% bootstrap_javascript %}
-{% endblock %}
+{% block container_content %}
 
-{% block content %}
-    {% bootstrap_messages %}
-
-    <div class="navbar navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                <img src="{% static 'app/img/logo.png' %}" alt="Logo" width="24" class="d-inline-block align-text-top">
-                Charge Beacon
-            </a>
-        </div>
-    </div>
-    <div class="container-sm">
-        <div class="bg-light p-5 rounded single">
-            {% block modal %}{% endblock %}
-        </div>
+    <div class="bg-light p-5 rounded single">
+        {% block modal %}{% endblock %}
     </div>
 
 {% endblock %}

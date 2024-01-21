@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <div class="header">
     <h1>
@@ -9,6 +10,7 @@
     </h1>
     {% if not request.user.is_anonymous %}
         <div>
+        <a href="{% url 'profile' %}" class="btn btn-primary">{% trans 'Profile' %}</a>
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Logout</button>
@@ -16,7 +18,7 @@
         </div>
     {% else %}
     <p>
-        Subscribe to updates for chargers in your region.
+        Subscribe to updates for chargers in your region. <a href="{% url 'django_registration_register' %}">Register</a> or <a href="{% url 'login' %}">login</a>.
     </p>
     {% endif %}
 </div>

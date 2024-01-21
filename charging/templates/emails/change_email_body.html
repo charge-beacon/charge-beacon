@@ -1,0 +1,9 @@
+A user on {{ site.name }} ({{ site.domain }}) recently requested an email change for your account from {{ user.email }} to {{ email }}.
+
+If this was you, please follow this link to confirm this change:
+
+{{ scheme }}://{{ site.domain }}{% url 'confirm_change_email' username=user.username activation_key=key %}
+
+Note, this link will expire in {{ expiry|timeuntil }}
+
+Thanks!

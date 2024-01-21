@@ -1,0 +1,71 @@
+{% extends 'app/bs_base.html' %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block style_extra %}
+    {{ block.super }}
+    <style>
+        .profile-view {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}Profile | {{ site.name }}{% endblock %}
+
+{% block container_content %}
+
+    <div class="profile-view">
+        <div class="my-4">
+            <h3>Account</h3>
+            <p class="text-secondary">
+                {% blocktrans %}
+                    This is your user account. There are many others like it, but this one is yours.
+                {% endblocktrans %}
+            </p>
+        </div>
+
+        <div class="row mb-3 p-3 bg-light rounded">
+            <div class="col-sm-3">
+                <p><strong>Personal Information</strong></p>
+                <p class="text-secondary">{% trans 'Note - changing your username affects your login credentials.' %}</p>
+            </div>
+            <div class="col">
+                {% crispy profile_form profile_helper %}
+            </div>
+        </div>
+
+        <div class="row mb-3 p-3 bg-light rounded">
+            <div class="col-sm-3">
+                <p><strong>Email</strong></p>
+                <p class="text-secondary">After updating your email, you will be required to confirm it.</p>
+            </div>
+            <div class="col">
+                <p class="text-secondary">{% trans 'Your email is currently ' %}{{ user.email }}</p>
+                {% crispy change_email_form change_email_helper %}
+            </div>
+        </div>
+
+        <div class="row mb-3 p-3 bg-light rounded">
+            <div class="col-sm-3">
+                <p><strong>Change Password</strong></p>
+                <p class="text-secondary">You will be logged out after changing your password.</p>
+            </div>
+            <div class="col">
+                {% crispy password_change_form password_change_helper %}
+            </div>
+        </div>
+
+        <div class="row mb-3 p-3 bg-light rounded">
+            <div class="col-sm-3">
+                <p><strong>Account Deletion</strong></p>
+                <p class="text-secondary">Deleting your account will remove all of your data from the site.</p>
+            </div>
+            <div class="col">
+                {% crispy delete_account_form delete_account_helper %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
