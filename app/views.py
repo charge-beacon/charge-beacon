@@ -1,7 +1,6 @@
 from django.core.paginator import Paginator
 from django.contrib.syndication.views import Feed
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.shortcuts import render, redirect
@@ -13,7 +12,9 @@ from crispy_forms.layout import Submit, Hidden
 from app.models import Station, Update
 from app.renderer import get_changes
 from app.constants import LOOKUPS
-from app.forms import ProfileForm, ChangeEmailForm, decode_email_change_key, DeleteAccountForm
+from app.forms import (
+    ProfileForm, ChangeEmailForm, decode_email_change_key, DeleteAccountForm, ChangePasswordForm,
+)
 
 
 def index(request):
@@ -131,13 +132,13 @@ def profile(request):
         change_email_form = ChangeEmailForm(user=request.user)
 
     if request.method == 'POST' and request.POST.get('action') == 'password_change':
-        password_change_form = PasswordChangeForm(request.user, request.POST)
+        password_change_form = ChangePasswordForm(request.user, request.POST)
         if password_change_form.is_valid():
             password_change_form.save()
             messages.add_message(request, messages.INFO, _('Your password has been changed'))
             return redirect('profile')
     else:
-        password_change_form = PasswordChangeForm(request.user)
+        password_change_form = ChangePasswordForm(request.user)
 
     if request.method == 'POST' and request.POST.get('action') == 'delete_account':
         delete_account_form = DeleteAccountForm(request.user, request.POST)

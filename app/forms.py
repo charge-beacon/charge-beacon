@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
 from django.core import signing
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
@@ -87,3 +88,9 @@ class DeleteAccountForm(forms.Form):
         if not self.user.check_password(password):
             raise ValidationError(_('Password incorrect'), code="password_incorrect",)
         return password
+
+
+class ChangePasswordForm(DjangoPasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget.attrs['autofocus'] = False

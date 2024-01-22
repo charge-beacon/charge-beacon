@@ -4,5 +4,5 @@
 {% block modal %}
     <h3>Welcome!</h3>
     <p>{% trans "Your account is now activated." %}</p>
-    <p><a href="{% url 'login' %}?next={% url 'index' %}">{% trans 'Proceed to Login' %}</a></p>
+    <div><a href="{% url 'login' %}?next={% url 'index' %}">{% trans 'Proceed to Login' %}</a></div>
 {% endblock %}

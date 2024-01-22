@@ -1,6 +1,7 @@
-{% extends "app/base.html" %}
+{% extends "app/modal.html" %}
 {% load i18n %}
 
-{% block content %}
-<p>{% trans "Your account is now activated." %}</p>
+{% block modal %}
+    <h3>Ack!</h3>
+    <div>{% trans "Your account is not activated." %}</div>
 {% endblock %}
