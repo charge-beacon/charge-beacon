@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_registration',
     'anymail',
+    'accounts',
     'app'
 ]
 
