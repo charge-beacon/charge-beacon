@@ -36,7 +36,7 @@ body {
     line-height: 30px;
 }
 
-.header a {
+.header h1 a {
     text-decoration: none;
     color: #333333;
     display: flex;
@@ -46,7 +46,7 @@ body {
     margin-bottom: 10px;
 }
 
-.header a img {
+.header h1 a img {
     width: 30px;
 }
 

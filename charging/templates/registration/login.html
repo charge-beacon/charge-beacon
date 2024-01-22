@@ -1,0 +1,12 @@
+{% extends "app/modal.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block modal %}
+    <h3>Login</h3>
+    <p class="text-secondary">Welcome back!</p>
+    {% crispy form helper %}
+
+    <p>{% trans "Forgot password" %}? <a href="{% url 'password_reset' %}">{% trans "Reset it" %}</a>!</p>
+    <p>{% trans "Not member" %}? <a href="{% url 'django_registration_register' %}">{% trans "Register" %}</a>!</p>
+{% endblock %}

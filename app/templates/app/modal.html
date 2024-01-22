@@ -1,0 +1,19 @@
+{% extends 'app/bs_base.html' %}
+
+{% block style_extra %}
+    {{ block.super }}
+    <style>
+        .single {
+            max-width: 500px;
+            margin: 25px auto;
+        }
+    </style>
+{% endblock %}
+
+{% block container_content %}
+
+    <div class="bg-light p-5 rounded single">
+        {% block modal %}{% endblock %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "app/modal.html" %}
+{% load i18n %}
+
+{% block modal %}
+    <h3>Welcome!</h3>
+    <p>{% trans "Your account is now activated." %}</p>
+    <p><a href="{% url 'login' %}?next={% url 'index' %}">{% trans 'Proceed to Login' %}</a></p>
+{% endblock %}

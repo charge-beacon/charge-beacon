@@ -1,0 +1,98 @@
+{% extends 'app/base.html' %}
+
+{% load static i18n django_bootstrap5 %}
+
+{% block style_extra %}
+    {% bootstrap_css %}
+    <style>
+        .messages-content div.alert:first-child {
+            margin-top: 1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block script_extra %}
+    {% bootstrap_javascript %}
+    <script src="{% static 'app/js/themeswitcher.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="navbar navbar-expand-sm bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'app/img/logo.png' %}" alt="Logo" width="24"
+                     class="d-inline-block align-text-top">
+                Charge Beacon
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
+                    aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarToggler">
+                <div class="me-auto"></div>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarScrollingDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">Settings</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="dropdown-item" type="submit">Logout</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <span class="dropdown-item disabled">Theme</span>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item"
+                                            data-bs-theme-value="light" aria-pressed="false">
+                                        Light
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item"
+                                            data-bs-theme-value="dark" aria-pressed="false">
+                                        Dark
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item"
+                                            data-bs-theme-value="auto" aria-pressed="false">
+                                        Auto
+                                    </button>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-sm messages-content">
+        {% bootstrap_messages %}
+    </div>
+
+    <div class="container-sm">
+        {% block container_content %}
+
+        {% endblock %}
+    </div>
+
+{% endblock %}

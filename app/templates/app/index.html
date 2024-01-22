@@ -5,26 +5,14 @@
 {% load static %}
 
 {% block meta %}
-
-    <meta name="twitter:card" content="summary_large_image"/>
-    <meta name="twitter:site" content="@samuelsutch"/>
-    <meta name="twitter:title" content="Charge Beacon"/>
-    <meta name="twitter:description" content="Subscribe to updates for chargers in your region."/>
-    <meta name="twitter:image" content="{{ base_uri }}{% static 'app/img/logo.png' %}"/>
-
-    <meta property="og:type" content="article"/>
-    <meta property="og:title" content="Charge Beacon"/>
-    <meta property="og:description" content="Subscribe to updates for chargers in your region."/>
-    <meta property="og:url" content="{{ request.build_absolute_uri }}"/>
-    <meta property="og:image" content="{{ base_uri }}{% static 'app/img/logo.png' %}"/>
-
+    {{ block.super }}
     <link id="updates-feed-link" rel="alternate" type="application/rss+xml" title="RSS" href="{{ feed_url }}">
-
 {% endblock %}
 
 {% block title %}Charge Beacon - EV Charging Station Updates{% endblock %}
 
 {% block style_extra %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'app/css/autocomplete.css' %}">
 {% endblock %}
 
@@ -66,17 +54,8 @@
 {% endblock %}
 
 {% block content %}
-    <div class="header">
-        <h1>
-            <a href="{% url 'index' %}" title="Charge Beacon home (click to reset filters)">
-                <img src="{% static 'app/img/logo.png' %}" alt="Charge Beacon Logo">
-                <span>Charge Beacon</span>
-            </a>
-        </h1>
-        <p>
-            Subscribe to updates for chargers in your region.
-        </p>
-    </div>
+    {% include 'app/header.html' %}
+
     <div class="filter-instructions">
         <p>
             <strong>Step 1: </strong>Configure a filter
@@ -138,6 +117,7 @@
             </div>
         </div>
     </form>
+    </div>
 
     <div class="updates-container" id="updates-container">
         {% include 'app/updates_body.html' %}
