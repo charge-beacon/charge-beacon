@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib.gis import admin
 from simple_history.admin import SimpleHistoryAdmin
 from app.models import Station, Persona, Update
 

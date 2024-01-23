@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     git \
     curl \
+    binutils libproj-dev gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 
 # Latest releases available at https://github.com/aptible/supercronic/releases

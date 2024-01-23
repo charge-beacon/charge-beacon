@@ -1,4 +1,5 @@
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import dateparse, timezone
@@ -34,7 +35,10 @@ class StationQuerySet(models.QuerySet):
                     if f1 != f2:
                         updated_fields.append(field)
                         setattr(obj, field, f2)
-                if updated_fields:
+                point_updated = update_point(station, obj)
+                if updated_fields or point_updated:
+                    if not updated_fields:
+                        obj.skip_history_when_saving = True
                     obj.save()
                 if not all(f in no_history_fields for f in updated_fields):
                     Update.objects.station_updated(obj)
@@ -161,6 +165,7 @@ class Station(models.Model):
         'self', on_delete=models.SET_NULL, blank=True, null=True, related_name='linked', editable=False
     )
     history = HistoricalRecords()
+    point = models.PointField(blank=True, null=True)
 
     objects = StationQuerySet.as_manager()
 
@@ -283,3 +288,18 @@ def clean_station_json(station_json):
         station_json['date_last_confirmed'] = dateparse.parse_date(station_json['date_last_confirmed'])
     if station_json.get('updated_at', None):
         station_json['updated_at'] = dateparse.parse_datetime(station_json['updated_at'])
+    if station_json.get('latitude', None):
+        station_json['latitude'] = float(station_json['latitude'])
+    if station_json.get('longitude', None):
+        station_json['longitude'] = float(station_json['longitude'])
+
+
+def update_point(cleaned_station_json, station) -> bool:
+    latitude = cleaned_station_json.get('latitude', None)
+    longitude = cleaned_station_json.get('longitude', None)
+    if latitude is not None and longitude is not None:
+        point = Point(longitude, latitude)
+        if not station.point or (station.point and (station.point.x, station.point.y) != (point.x, point.y)):
+            station.point = point
+            return True
+    return False

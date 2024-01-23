@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.humanize',
+    'django.contrib.gis',
     'debug_toolbar',
     'simple_history',
     'plausible_proxy',
@@ -56,8 +57,10 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_registration',
     'anymail',
+    'django_countries',
     'accounts',
-    'app'
+    'app',
+    'beacon'
 ]
 
 MIDDLEWARE = [
@@ -106,7 +109,10 @@ DATABASES = {
 if 'DATABASE_URL' in os.environ:
     import dj_database_url
 
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+    DATABASES['default'] = dj_database_url.config(
+        engine='django.contrib.gis.db.backends.postgis',
+        conn_max_age=600,
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
