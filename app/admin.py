@@ -1,10 +1,11 @@
-from django.contrib.gis import admin
+from django.contrib import admin
+from django.contrib.gis.admin.options import GeoModelAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 from app.models import Station, Persona, Update
 
 
 @admin.register(Station)
-class StationAdmin(SimpleHistoryAdmin):
+class StationAdmin(GeoModelAdminMixin, SimpleHistoryAdmin):
     list_display = (
         'beacon_name', 'status_code', 'full_address', 'open_date', 'updated_at'
     )

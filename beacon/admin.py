@@ -12,7 +12,7 @@ class SearchAdmin(admin.ModelAdmin):
 
 
 @admin.register(Area)
-class AreaAdmin(admin.ModelAdmin):
+class AreaAdmin(GISModelAdmin):
     list_display = ('name', 'place_id', 'area_type')
     search_fields = ('name', 'place_id', 'belongs_to__name')
     list_filter = ('area_type',)
