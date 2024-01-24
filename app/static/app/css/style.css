@@ -1,3 +1,7 @@
+html[data-bs-theme=dark] .light-icon {
+    filter: invert(100%);
+}
+
 .pagination {
     text-align: center;
     margin-top: 20px;

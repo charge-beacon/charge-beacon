@@ -271,7 +271,8 @@ class Update(models.Model):
 
 def dict_from_model(model):
     obj = model_to_dict(model)
-    keys_to_del = [f for f in obj if f.startswith('history')]
+    keys_to_del = ['point', 'linked_to']
+    keys_to_del.extend([f for f in obj if f.startswith('history')])
     for f in keys_to_del:
         del obj[f]
     data = json.dumps(obj, cls=DjangoJSONEncoder)

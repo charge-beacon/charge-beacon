@@ -31,8 +31,8 @@ def get_updates_context(request):
     }
     if selected_networks := get_param(request, 'ev_network'):
         feed_kwargs['ev_networks'] = selected_networks
-    if selected_states := get_param(request, 'ev_state'):
-        feed_kwargs['areas'] = selected_states
+    if selected_areas := get_param(request, 'ev_area'):
+        feed_kwargs['areas'] = selected_areas
     if selected_plug_types := get_param(request, 'plug_types'):
         feed_kwargs['ev_connector_types'] = selected_plug_types
 
@@ -46,14 +46,15 @@ def get_updates_context(request):
 
     paginator = Paginator(queryset, 25)
     base_uri = f'{request.scheme}://{request.get_host()}'
+    selected_area_objects = {str(a.id): a for a in Area.objects.filter(id__in=selected_areas)}
     ctx = {
         'base_uri': base_uri,
         'queryset': queryset,
         'updates': paginator.get_page(request.GET.get('page', '1')),
         'networks': Station.objects.all_networks(),
         'selected_networks': selected_networks,
-        'states': Area.objects.filter(area_type=AreaType.STATE).order_by('name'),
-        'selected_states': selected_states,
+        'selected_area_ids': selected_areas,
+        'selected_areas': [selected_area_objects[a] for a in selected_areas],
         'plug_types': LOOKUPS['ev_connector_types'],
         'selected_plug_types': selected_plug_types,
         'feed_url': f'{base_uri}{reverse("updates-feed")}?{request.GET.urlencode()}',
