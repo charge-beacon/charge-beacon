@@ -11,8 +11,6 @@
     <title>{% block title %}{% endblock %}</title>
 
     {% block style_extra %}
-    <link rel="stylesheet" href="{% static 'app/css/reset.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
     {% endblock %}
 
     {% plausible domain=request.get_host script='script.js' %}

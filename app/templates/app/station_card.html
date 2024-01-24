@@ -1,25 +1,28 @@
 {% load humanize %}
 {% load update_renderer %}
 
-<div class="station-card">
+<div class="bg-body-tertiary rounded border-light-subtle p-3 mb-3">
     <div class="station-header">
-        <div class="station-title">
+        <div class="d-flex justify-content-between">
             <h3>
                 {{ station.station_name }}
-                {% if new %}
-                    <span class="station-new-pill">New!</span>
-                {% else %}
-                    <span class="station-update-pill">Updated</span>
-                {% endif %}
             </h3>
 
-            <div class="station-update-timestamp">{{ timestamp|naturaltime }}</div>
+            <div class="text-secondary">
+                {% if new %}
+                    <span class="badge rounded-pill text-bg-success">New!</span>
+                {% else %}
+                    <span class="badge rounded-pill text-bg-info">Updated</span>
+                {% endif %}
+                {{ timestamp|naturaltime }}
+            </div>
         </div>
-        <div class="station-address">
+        <div class="text-secondary">
             {{ station.street_address|title }}<br>
             {{ station.city|title }}, {{ station.state|upper }} {{ station.zip }}
         </div>
     </div>
+
     <div class="station-data">
         <div class="station-field">
             <div class="station-field-name">Plug Types</div>

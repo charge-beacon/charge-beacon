@@ -33,11 +33,14 @@ class Area(models.Model):
     """
     An area is a geographic region that can be used to filter search results.
     """
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, db_index=True)
     place_id = models.SlugField(max_length=255)
     area_type = models.CharField(max_length=1, choices=AreaType.choices)
     belongs_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name

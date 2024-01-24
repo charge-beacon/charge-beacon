@@ -1,4 +1,4 @@
-{% extends 'app/base.html' %}
+{% extends 'app/bs_base.html' %}
 
 {% load humanize %}
 {% load url_params %}
@@ -13,13 +13,21 @@
 
 {% block style_extra %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'app/css/autocomplete.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap5-tags@1.6.15/tags-pure.min.css"
+          integrity="sha256-bB3o19pajUMfdmUqpYgNiIjoReWE14ILNGukyDI+yig=" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
 {% endblock %}
 
 {% block script_extra %}
-    <script src="{% static 'app/js/autocomplete.js' %}"></script>
-    <script>
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap5-tags@1.6.15/tags.min.js" type="module"
+            integrity="sha256-DQj1cKgaCxDJ9n5kwuXKDqWQ8vVhpA+OIMArzrYydXI=" crossorigin="anonymous"></script>
+    <script type="module">
+        import Tags from 'https://cdn.jsdelivr.net/npm/bootstrap5-tags@1.6.15/tags.min.js';
+
         document.addEventListener('DOMContentLoaded', function () {
+            Tags.init();
+
             const interestingFields = [
                 'ev_state',
                 'ev_network',
@@ -30,7 +38,7 @@
 
             const form = document.getElementById('search-inputs');
             const feedLink = document.getElementById('updates-feed-link');
-            const feedAnchor = document.getElementById('updates-feed-anchor');
+            // const feedAnchor = document.getElementById('updates-feed-anchor');
 
             for (const field of interestingFields) {
                 const el = document.getElementById(field);
@@ -40,7 +48,7 @@
                     window.history.pushState({}, '', `?${params.toString()}`);
                     const newFullURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                     feedLink.href = newFullURL;
-                    feedAnchor.href = newFullURL;
+                    // feedAnchor.href = newFullURL;
                     fetch(`/updates_partial?${params.toString()}`)
                         .then(response => response.text())
                         .then(html => {
@@ -53,82 +61,74 @@
     </script>
 {% endblock %}
 
-{% block content %}
-    {% include 'app/header.html' %}
+{% block container_content %}
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <form id="search-inputs" method="get">
+                <div class="search-form">
 
-    <div class="filter-instructions">
-        <p>
-            <strong>Step 1: </strong>Configure a filter
-        </p>
-        <p>
-            <strong>Step 2: </strong>Subscribe to the
-            <a id="updates-feed-anchor" href="{{ feed_url }}">RSS feed</a>
-            (more ways to subscribe coming soon!)
-        </p>
-    </div>
-    <div class="filter-header">
-    <form id="search-inputs" method="get">
-        <div class="search-form">
-            <div class="search-input">
-                <label for="ev_state">States</label>
-                <select name="ev_state" id="ev_state" multiple data-multi-select-plugin>
-                    {% for state in states %}
-                        <option value="{{ state.id }}"
-                                {% if state.id in selected_states %}selected{% endif %}>
-                            {{ state.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="search-input">
-                <label for="ev_network">EV Networks</label>
-                <select name="ev_network" id="ev_network" multiple data-multi-select-plugin>
-                    {% for ev_network in networks %}
-                        <option value="{{ ev_network.id }}"
-                                {% if ev_network.id in selected_networks %}selected{% endif %}>
-                            {{ ev_network.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="search-input">
-                <label for="plug_types">Plug Types</label>
-                <select name="plug_types" id="plug_types" multiple data-multi-select-plugin>
-                    <option value="">Any</option>
-                    {% for plug_value, plug_name in plug_types.items %}
-                        <option value="{{ plug_value }}"
-                                {% if plug_value in selected_plug_types %}selected{% endif %}>
-                            {{ plug_name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="search-input-group">
-                <div class="search-input">
-                    <label for="dc_fast">DC Fast</label>
-                    <input type="checkbox" name="dc_fast" id="dc_fast" value="true"
-                           {% if request.GET.dc_fast == 'true' %}checked{% endif %}>
+                    <div class="mb-3">
+                        <label for="ev_state" class="form-label">Areas</label>
+                        <select name="ev_state" id="ev_state" multiple>
+                            <option value="">North America</option>
+                            {% for state in states %}
+                                <option value="{{ state.id }}"
+                                        {% if state.id in selected_states %}selected{% endif %}>
+                                    {{ state.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ev_network" class="form-label">EV Networks</label>
+                        <select name="ev_network" id="ev_network" multiple>
+                            <option value="">All</option>
+                            {% for ev_network in networks %}
+                                <option value="{{ ev_network.id }}"
+                                        {% if ev_network.id in selected_networks %}selected{% endif %}>
+                                    {{ ev_network.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="plug_types" class="form-label">Plug Types</label>
+                        <select name="plug_types" id="plug_types" multiple>
+                            <option value="">Any</option>
+                            {% for plug_value, plug_name in plug_types.items %}
+                                <option value="{{ plug_value }}"
+                                        {% if plug_value in selected_plug_types %}selected{% endif %}>
+                                    {{ plug_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="dc_fast" id="dc_fast" value="true"
+                               class="form-check-input"
+                               {% if request.GET.dc_fast == 'true' %}checked{% endif %}>
+                        <label for="dc_fast" class="form-check-label">DC Fast</label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="only_new" id="only_new" value="true"
+                               class="form-check-input"
+                               {% if request.GET.only_new == 'true' %}checked{% endif %}>
+                        <label for="only_new" class="form-check-label">Only Show New</label>
+                    </div>
+
                 </div>
-                <div class="search-input">
-                    <label for="only_new">Only Show New</label>
-                    <input type="checkbox" name="only_new" id="only_new" value="true"
-                           {% if request.GET.only_new == 'true' %}checked{% endif %}>
-                </div>
-            </div>
+            </form>
         </div>
-    </form>
+
+        <div class="col-md-8" id="updates-container">
+            {% include 'app/updates_body.html' %}
+        </div>
+
     </div>
 
-    <div class="updates-container" id="updates-container">
-        {% include 'app/updates_body.html' %}
-    </div>
-
-    <div class="footer">
-        <div class="footer-links">
-            <span>Created by<br><a href="https://sam.sutch.net" target="_blank">Samuel Sutch</a></span><br>
-            <span>Data provided by<br><a href="https://developer.nrel.gov/" target="_blank">NREL</a></span><br>
-            <span>Find us on<br><a href="https://github.com/charge-beacon/charge-beacon"
-                                   target="_blank">GitHub</a></span>
-        </div>
-    </div>
+    {% include 'app/footer.html' %}
 {% endblock %}

@@ -7,6 +7,7 @@ URL = 'https://developer.nrel.gov/api/alt-fuel-stations/v1.json'
 params = {
     'fuel_type': 'ELEC',
     'api_key': settings.NREL_API_KEY,
+    'country': 'all',
 }
 
 

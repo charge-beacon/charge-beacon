@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.aggregates import Union
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import dateparse, timezone
@@ -7,6 +8,7 @@ from django.core.serializers.json import json, DjangoJSONEncoder
 from simple_history.models import HistoricalRecords
 import randomname
 from django.forms import model_to_dict
+from beacon.models import Area
 from app.constants import LOOKUPS, US_ABBREV_TO_STATE
 
 
@@ -79,7 +81,7 @@ class StationQuerySet(models.QuerySet):
                 'handle': network_name_as_handle(r['ev_network']),
                 'count': r['count'],
             })
-        return sorted(networks, key=lambda x: x['name'])
+        return sorted(networks, key=lambda x: x['name'].lower())
 
     def all_states(self):
         count = models.Count('state', filter=models.Q(linked_to__isnull=True))
@@ -228,7 +230,7 @@ class UpdateQuerySet(models.QuerySet):
         }
         self.create(**args)
 
-    def feed(self, ev_networks: list[str] = None, states: list[str] = None, ev_connector_types: list[str] = None, station: Station = None):
+    def feed(self, ev_networks: list[str] = None, areas: list[str] = None, ev_connector_types: list[str] = None, station: Station = None):
         qs = self.all().select_related('station')
         if station:
             qs = qs.filter(station=station)
@@ -236,8 +238,10 @@ class UpdateQuerySet(models.QuerySet):
             qs = qs.filter(station__linked_to__isnull=True)
         if ev_networks:
             qs = qs.filter(station__ev_network__in=ev_networks)
-        if states:
-            qs = qs.filter(station__state__in=states)
+        if areas:
+            areas = Area.objects.filter(id__in=areas)
+            combined_geom = areas.aggregate(area=Union('geom'))['area']
+            qs = qs.filter(station__point__within=combined_geom)
         if ev_connector_types:
             q = Q()
             for t in ev_connector_types:

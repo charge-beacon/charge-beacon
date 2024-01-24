@@ -1,180 +1,7 @@
-h1 {
-    font-size: 200%;
-    line-height: 1.2;
-}
-
-h2 {
-    font-size: 150%;
-}
-
-h3 {
-    font-size: 120%;
-}
-
-body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    color: #333333;
-    background-color: rgb(242, 250, 251);
-}
-
-@media (max-width: 750px) {
-    .site {
-        margin: 0 15px;
-    }
-}
-
-
-.header {
-    margin-top: 5px;
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ffffff;
-}
-
-.header h1 {
-    line-height: 30px;
-}
-
-.header h1 a {
-    text-decoration: none;
-    color: #333333;
-    display: flex;
-    column-gap: 12px;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-
-.header h1 a img {
-    width: 30px;
-}
-
-.filter-header {
-    margin: 10px auto;
-    max-width: 500px;
-}
-
-@media (max-width: 750px) {
-    .filter-header {
-        justify-content: flex-start;
-    }
-}
-
-@media (max-width: 320px) {
-    .search-input-group {
-        flex-direction: column;
-    }
-}
-
-.search-input-group {
-    display: flex;
-    column-gap: 31px;
-}
-
-.search-input {
-    display: flex;
-    align-items: center;
-    /*width: 100%;*/
-    min-height: 31px;
-    margin-bottom: 10px;
-}
-
-.search-input label {
-    padding-right: 10px;
-    min-width: 125px;
-    line-height: 31px;
-    height: 100%;
-}
-
-.search-input input {
-    height: 100%;
-}
-
-.updates-container {
-    margin: 0 auto;
-    max-width: 500px;
-}
-
-.filter-instructions {
-    max-width: 500px;
-    margin: 10px auto 20px;
-}
-
-.filter-instructions p {
-    margin-bottom: 10px;
-}
-
-.update {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #e8e8e8;
-    border-radius: 3px;
-    background-color: white;
-}
-
 .pagination {
     text-align: center;
     margin-top: 20px;
     margin-bottom: 20px;
-}
-
-.footer {
-    padding: 10px;
-    margin-top: 10px;
-    border-top: 1px solid white;
-    text-align: center;
-}
-
-.footer-links {
-    margin-top: 12px;
-    margin-bottom: 24px;
-    display: flex;
-    column-gap: 10px;
-    justify-content: center;
-}
-
-.footer-links span {
-    background-color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: 1px solid #e8e8e8;
-}
-
-.station-card {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #e8e8e8;
-    border-radius: 3px;
-    background-color: white;
-}
-
-.station-title {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.station-new-pill {
-    background-color: #28a745;
-    color: white;
-    padding: 2px 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    text-transform: uppercase;
-}
-
-.station-update-pill {
-    background-color: #ffc107;
-    color: white;
-    padding: 2px 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    text-transform: uppercase;
-}
-
-.station-address {
-    color: #666666;
 }
 
 .station-data {
@@ -183,7 +10,7 @@ body {
 }
 
 .station-field {
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--bs-border-color);
     flex-grow: 1;
 }
 
@@ -194,7 +21,7 @@ body {
 .station-field .station-field-name {
     font-weight: bold;
     padding: 5px;
-    background-color: #f5f5f5;
+    background-color: var(--bs-secondary-bg);
 }
 
 .station-field .station-field-value {
@@ -207,8 +34,8 @@ body {
 
 .station-detail {
     display: flex;
-    border: 1px solid #e8e8e8;
-    background-color: white;
+    border: var(--bs-border-color);
+    background-color: var(--bs-secondary-bg);
     margin-top: -1px;
 }
 
@@ -228,11 +55,11 @@ body {
 }
 
 .station-changes {
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--bs-border-color);
     display: grid;
-    background-color: #e8e8e8;
+    background-color: var(--bs-secondary-bg);
     grid-gap: 1px;
-    grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
+    grid-template-columns: repeat(3, 1fr);
 }
 
 @media (max-width: 500px) {
@@ -246,7 +73,7 @@ body {
 }
 
 .station-change-field {
-    background-color: white;
+    background-color: var(--bs-body-bg);
     font-weight: bold;
 }
 
