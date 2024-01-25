@@ -2,6 +2,18 @@ html[data-bs-theme=dark] .light-icon {
     filter: invert(100%);
 }
 
+.logo-text {
+    background-image: url(../img/Logo_Text_Charge_Beacon_Light_Theme.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 28px;
+    width: 200px;
+}
+
+html[data-bs-theme=dark] .logo-text {
+    background-image: url(../img/Logo_Text_Charge_Beacon_Dark_Theme.svg);
+}
+
 .pagination {
     text-align: center;
     margin-top: 20px;

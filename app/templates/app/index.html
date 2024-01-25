@@ -15,7 +15,6 @@
     {{ block.super }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap5-tags@1.6.15/tags-pure.min.css"
           integrity="sha256-bB3o19pajUMfdmUqpYgNiIjoReWE14ILNGukyDI+yig=" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
 {% endblock %}
 
 {% block script_extra %}
@@ -68,13 +67,19 @@
                         });
                 });
             }
+
+            document.querySelectorAll('[data-station-card-url]').forEach(el => {
+                el.onclick = () => {
+                    location.href = el.dataset.stationCardUrl;
+                }
+            })
         });
     </script>
 {% endblock %}
 
 {% block container_content %}
     <div class="row mt-3">
-        <div class="col-md-4">
+        <div class="col-lg-4 col-md-5">
             <div class="card mb-3">
                 <div class="card-body">
                     Charge Beacon notifies you about EV charger updates in your area.
@@ -88,6 +93,7 @@
                     More notification options coming soon!
                 </div>
             </div>
+
             <form id="search-inputs" method="get">
                 <div class="search-form">
 
@@ -155,7 +161,7 @@
             </form>
         </div>
 
-        <div class="col-md-8" id="updates-container">
+        <div class="col-lg-8 col-md-7" id="updates-container">
             {% include 'app/updates_body.html' %}
         </div>
 

@@ -1,11 +1,16 @@
 {% load humanize %}
 {% load update_renderer %}
 
-<div class="bg-body-tertiary rounded border-light-subtle p-3 mb-3">
+<div class="bg-body-tertiary rounded border-light-subtle p-3 mb-3"
+     role="button"
+     data-station-card-url="{{ update.get_absolute_url }}">
     <div class="station-header">
         <div class="d-flex justify-content-between">
             <h3>
-                {{ station.station_name }}
+                <a href="{% url 'station' beacon_name=station.beacon_name %}"
+                   class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+                    {{ station.station_name }}
+                </a>
             </h3>
 
             <div class="text-secondary">

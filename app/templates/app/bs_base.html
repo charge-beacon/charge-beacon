@@ -4,6 +4,7 @@
 
 {% block style_extra %}
     {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
     <style>
         .messages-content div.alert:first-child {
             margin-top: 1rem;
@@ -20,9 +21,7 @@
     <div class="navbar navbar-expand-sm bg-body-tertiary">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'index' %}">
-                <img src="{% static 'app/img/icon-small.png' %}" alt="Logo" width="24"
-                     class="d-inline-block align-text-top">
-                Charge Beacon
+                <div class="logo-text"></div>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
                     aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,6 +78,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'django_registration_register' %}">Register</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
@@ -89,10 +91,12 @@
         {% bootstrap_messages %}
     </div>
 
+    {% block container %}
     <div class="container-sm">
         {% block container_content %}
 
         {% endblock %}
     </div>
+    {% endblock %}
 
 {% endblock %}

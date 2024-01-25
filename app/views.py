@@ -1,8 +1,8 @@
 from django.core.paginator import Paginator
 from django.contrib.syndication.views import Feed
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from beacon.models import Area, AreaType
+from beacon.models import Area
 from app.models import Station, Update
 from app.renderer import get_changes
 from app.constants import LOOKUPS
@@ -17,7 +17,7 @@ def updates_partial(request):
 
 
 def station(request, beacon_name):
-    item = Station.objects.get(beacon_name=beacon_name)
+    item = get_object_or_404(Station, beacon_name=beacon_name)
     return render(request, 'app/station.html', {
         'base_uri': f'{request.scheme}://{request.get_host()}',
         'station': item,

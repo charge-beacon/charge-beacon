@@ -185,6 +185,9 @@ class Station(models.Model):
     def key(self):
         return f'{self.ev_network}: {self.street_address}, {self.city}, {self.state}'.lower()
 
+    def full_address_one_line(self):
+        return f'{self.street_address}, {self.city}, {self.state} {self.zip}'
+
 
 def network_name_as_handle(network):
     return network.lower().replace(' ', '-') if network else 'none'
@@ -251,7 +254,7 @@ class UpdateQuerySet(models.QuerySet):
 
 
 class Update(models.Model):
-    station = models.ForeignKey(Station, on_delete=models.CASCADE, editable=False)
+    station = models.ForeignKey(Station, on_delete=models.CASCADE, editable=False, related_name='updates')
     created_at = models.DateTimeField(auto_now_add=True)
     is_creation = models.BooleanField(default=False)
     current = models.JSONField(blank=True, null=True)
@@ -274,7 +277,8 @@ def dict_from_model(model):
     keys_to_del = ['point', 'linked_to']
     keys_to_del.extend([f for f in obj if f.startswith('history')])
     for f in keys_to_del:
-        del obj[f]
+        if f in obj:
+            del obj[f]
     data = json.dumps(obj, cls=DjangoJSONEncoder)
     return json.loads(data)
 

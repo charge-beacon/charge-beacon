@@ -8,6 +8,7 @@ register = template.Library()
 @register.inclusion_tag('app/station_card.html')
 def station_card(update):
     return {
+        'update': update,
         'station': update.station,
         'new': update.is_creation,
         'timestamp': update.created_at,

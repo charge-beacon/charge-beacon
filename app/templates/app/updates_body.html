@@ -3,22 +3,36 @@
 
 {% for update in updates %}
     {% station_card update %}
+{% empty %}
+    <div class="bg-body-tertiary rounded border-light-subtle p-3 mb-3">
+        No recent updates. Check back soon!
+    </div>
 {% endfor %}
 
-<div class="pagination">
-    <span class="step-links">
+<nav class="d-flex justify-content-center">
+    <ul class="pagination">
         {% if updates.has_previous %}
-            <a href="{% url_params page=1 %}">&laquo; first</a>
-            <a href="{% url_params page=updates.previous_page_number %}">previous</a>
+            <li class="page-item">
+                <a href="{% url_params page=1 %}" class="page-link">&laquo; first</a>
+            </li>
+            <li class="page-item">
+                <a href="{% url_params page=updates.previous_page_number %}" class="page-link">previous</a>
+            </li>
         {% endif %}
 
-        <span class="current">
-            Page {{ updates.number }} of {{ updates.paginator.num_pages }}.
-        </span>
+        <li class="page-item disabled">
+            <a class="page-link">Page {{ updates.number }} of {{ updates.paginator.num_pages }}</a>
+        </li>
 
         {% if updates.has_next %}
-            <a href="{% url_params page=updates.next_page_number %}">next</a>
-            <a href="{% url_params page=updates.paginator.num_pages %}">last &raquo;</a>
+            <li class="page-item">
+                <a href="{% url_params page=updates.next_page_number %}" class="page-link">next</a>
+            </li>
+            <li class="page-item">
+                <a href="{% url_params page=updates.paginator.num_pages %}" class="page-link">last &raquo;</a>
+            </li>
         {% endif %}
-    </span>
-</div>
+    </ul>
+</nav>
+
+

@@ -1,0 +1,121 @@
+{% extends 'app/bs_base.html' %}
+
+{% load update_renderer %}
+
+{% block meta %}
+    {{ block.super }}
+    {# TODO: put station meta in here #}
+{% endblock %}
+
+{% block title %}{{ station.station_name }} | {{ site.name }}{% endblock %}
+
+{% block style_extra %}
+    {{ block.super }}
+    <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet'/>
+    <style>
+        .maplibregl-popup {
+            max-width: 200px;
+            color: black;
+        }
+
+        .maplibregl-marker {
+            cursor: pointer;
+        }
+
+        .maplibregl-popup-close-button {
+            color: black;
+        }
+    </style>
+{% endblock %}
+
+{% block script_extra %}
+    {{ block.super }}
+    <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+    <script type="module">
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const loc = [{{ station.longitude }}, {{ station.latitude }}];
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://api.maptiler.com/maps/streets/style.json?key=NM2bzuwan7L5ET5h10no',
+                center: loc,
+                zoom: 12
+            });
+            const popup = new maplibregl.Popup({offset: 25}).setHTML(
+                '{{ station.street_address|escapejs }}<br>{{ station.city|escapejs }}, {{ station.state|escapejs }} {{ station.zip|escapejs }}'
+            );
+
+            const marker = new maplibregl.Marker()
+                .setLngLat(loc)
+                .setPopup(popup)
+                .addTo(map);
+        });
+
+    </script>
+{% endblock %}
+
+{% block container %}
+
+    <div id="map" class="w-100" style="height:300px"></div>
+    <div class="container-sm">
+        <div class="row mt-3">
+            <h3>{{ station.station_name }}</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-md">
+                <div class="row">
+                    <div class="col-8 address mb-3 text-secondary">
+                        {{ station.street_address }}<br>
+                        {{ station.city }}, {{ station.state }} {{ station.zip }}<br>
+                    </div>
+                    <div class="col-4 mb-3">
+                        <a href="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination={{ station.full_address_one_line|escapejs|urlencode }}"
+                           target="_blank"
+                           class="btn btn-primary">
+                            Directions
+                        </a>
+                    </div>
+                </div>
+                {% if station.station_phone %}
+                    <div class="row">
+                        <p>
+                            <a href="tel:{{ station.station_phone }}">{{ station.station_phone }}</a>
+                        </p>
+                    </div>
+                {% endif %}
+                {% if station.ev_network_web %}
+                    <div class="row">
+                        <p>
+                            <strong>Charging Network:</strong>
+                            <a href="{{ station.ev_network_web }}" target="_blank">
+                                {{ station.ev_network|station_field:"ev_network" }}
+                            </a>
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col">
+                <h5>Access</h5>
+                <p>{{ station.groups_with_access_code }}</p>
+                {% if station.access_days_time %}
+                    <h5>Hours</h5>
+                    <p>{{ station.access_days_time }}</p>
+                {% endif %}
+                {% if station.cards_accepted %}
+                    <h5>Payment Methods</h5>
+                    <p>{{ station.cards_accepted|station_field:"cards_accepted" }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <p class="text-muted fst-italic">
+                Station details are subject to change.
+                We recommend verifying with the operator's website or app to verify location, hours, and price.
+            </p>
+        </div>
+
+    </div>
+{% endblock %}
