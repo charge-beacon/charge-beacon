@@ -1,69 +1,66 @@
 {% load static %}
 
-<form id="search-inputs"
-      action="{{ search_action|default:"" }}"
-      method="{{ search_method|default:"get" }}">
-    <div class="search-form">
 
-        <div class="mb-3">
-            <label for="ev_area" class="form-label d-flex justify-content-between">
-                <span>Areas</span>
-                <a href="#" data-bs-toggle="tooltip"
-                   data-bs-title="Areas can include States/Provinces and Zips/Postal Codes">
-                    <img class="light-icon" width="16"
-                         src="{% static 'app/img/iconmonstr-info-2.svg' %}"
-                         alt="Areas can include States/Provinces and Zips/Postal Codes">
-                </a>
-            </label>
-            <select name="ev_area"
-                    id="ev_area"
-                    multiple>
-                <option value="" disabled hidden>North America</option>
-                {% for area in selected_areas %}
-                    <option value="{{ area.id }}" selected>{{ area.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+<div class="search-form">
 
-        <div class="mb-3">
-            <label for="ev_network" class="form-label">EV Networks</label>
-            <select name="ev_network" id="ev_network" multiple>
-                <option value="" disabled hidden>All</option>
-                {% for ev_network in networks %}
-                    <option value="{{ ev_network.id }}"
-                            {% if ev_network.id in selected_networks %}selected{% endif %}>
-                        {{ ev_network.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="plug_types" class="form-label">Plug Types</label>
-            <select name="plug_types" id="plug_types" multiple>
-                <option value="">Any</option>
-                {% for plug_value, plug_name in plug_types.items %}
-                    <option value="{{ plug_value }}"
-                            {% if plug_value in selected_plug_types %}selected{% endif %}>
-                        {{ plug_name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-check mb-3">
-            <input type="checkbox" name="dc_fast" id="dc_fast" value="true"
-                   class="form-check-input"
-                   {% if dc_fast %}checked{% endif %}>
-            <label for="dc_fast" class="form-check-label">DC Fast</label>
-        </div>
-
-        <div class="form-check mb-3">
-            <input type="checkbox" name="only_new" id="only_new" value="true"
-                   class="form-check-input"
-                   {% if only_new %}checked{% endif %}>
-            <label for="only_new" class="form-check-label">Only Show New</label>
-        </div>
-
+    <div class="mb-3">
+        <label for="ev_area" class="form-label d-flex justify-content-between">
+            <span>Areas</span>
+            <a href="#" data-bs-toggle="tooltip"
+               data-bs-title="Areas can include States/Provinces and Zips/Postal Codes">
+                <img class="light-icon" width="16"
+                     src="{% static 'app/img/iconmonstr-info-2.svg' %}"
+                     alt="Areas can include States/Provinces and Zips/Postal Codes">
+            </a>
+        </label>
+        <select name="ev_area"
+                id="ev_area"
+                multiple>
+            <option value="" disabled hidden>North America</option>
+            {% for area in selected_areas %}
+                <option value="{{ area.id }}" selected>{{ area.name }}</option>
+            {% endfor %}
+        </select>
     </div>
-</form>
+
+    <div class="mb-3">
+        <label for="ev_network" class="form-label">EV Networks</label>
+        <select name="ev_network" id="ev_network" multiple>
+            <option value="" disabled hidden>All</option>
+            {% for ev_network in networks %}
+                <option value="{{ ev_network.id }}"
+                        {% if ev_network.id in selected_networks %}selected{% endif %}>
+                    {{ ev_network.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="plug_types" class="form-label">Plug Types</label>
+        <select name="plug_types" id="plug_types" multiple>
+            <option value="">Any</option>
+            {% for plug_value, plug_name in plug_types.items %}
+                <option value="{{ plug_value }}"
+                        {% if plug_value in selected_plug_types %}selected{% endif %}>
+                    {{ plug_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <input type="checkbox" name="dc_fast" id="dc_fast" value="true"
+               class="form-check-input"
+               {% if dc_fast %}checked{% endif %}>
+        <label for="dc_fast" class="form-check-label">DC Fast</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input type="checkbox" name="only_new" id="only_new" value="true"
+               class="form-check-input"
+               {% if only_new %}checked{% endif %}>
+        <label for="only_new" class="form-check-label">Only New</label>
+    </div>
+
+</div>

@@ -1,8 +1,9 @@
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from beacon.models import Area
+from beacon.models import Search, Area
 from app.models import Station, Update
 from app.renderer import get_changes
 from app.constants import LOOKUPS
@@ -23,6 +24,32 @@ def station(request, beacon_name):
         'station': item,
         'updates': item.updates.all(),
     })
+
+
+@login_required
+def searches(request):
+    saved = Search.objects.filter(user=request.user)
+    return render(request, 'app/search/list.html', {
+        'saved': saved
+    })
+
+
+@login_required
+def new_search(request):
+    ctx = get_search_context(request)
+    ctx['action'] = reverse('search-new')
+    return render(request, 'app/search/edit.html', ctx)
+
+
+@login_required
+def edit_search(request, search_id):
+    search = get_object_or_404(Search, id=search_id)
+    ctx = get_search_context(request)
+    ctx.update({
+        'model': search,
+        'action': reverse('search-edit', kwargs={'search_id': search_id})
+    })
+    return render(request, 'app/search/edit.html', ctx)
 
 
 def get_search_context(request):
@@ -60,7 +87,11 @@ def get_updates_context(request):
     if ctx['only_new']:
         queryset = queryset.filter(is_creation=True)
 
-    paginator = Paginator(queryset, 25)
+    max_results = 25
+    if user_max_results := request.GET.get('max_results', None):
+        max_results = int(user_max_results)
+
+    paginator = Paginator(queryset, max_results)
     base_uri = f'{request.scheme}://{request.get_host()}'
 
     ctx.update({
@@ -68,13 +99,15 @@ def get_updates_context(request):
         'queryset': queryset,
         'updates': paginator.get_page(request.GET.get('page', '1')),
         'feed_url': f'{base_uri}{reverse("updates-feed")}?{request.GET.urlencode()}',
+        'pagination': request.GET.get('pagination', 'true') == 'true'
     })
 
     return ctx
 
 
 def get_param(request, name) -> list[str]:
-    return list(filter(bool, request.GET.getlist(name)))
+    source = request.GET if request.method == 'GET' else request.POST
+    return list(filter(bool, source.getlist(name)))
 
 
 class CustomFeed(Feed):

@@ -13,7 +13,6 @@ class Search(models.Model):
     dc_fast = models.BooleanField(default=False)
     only_new = models.BooleanField(default=False)
     within = models.ManyToManyField('Area', related_name='within', blank=True)
-    exclude = models.ManyToManyField('Area', related_name='exclude', blank=True)
 
     def __str__(self):
         return self.name
