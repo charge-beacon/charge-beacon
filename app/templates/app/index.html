@@ -20,7 +20,18 @@
     {{ block.super }}
     {% include 'app/search/search_scripts.html' %}
     <script type="module">
+        function connectCardBtns() {
+            // connect click of entire station update card to station url
+            document.querySelectorAll('[data-station-card-url]').forEach(el => {
+                el.onclick = () => {
+                    location.href = el.dataset.stationCardUrl;
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            connectCardBtns();
+
             // listen for updates in the search form and update the feed
             const interestingFields = [
                 'ev_area',
@@ -48,15 +59,14 @@
                         .then(html => {
                             const container = document.getElementById('updates-container');
                             container.innerHTML = html;
+                            connectCardBtns();
                         });
                 });
             }
 
-            // connect click of entire station update card to station url
-            document.querySelectorAll('[data-station-card-url]').forEach(el => {
-                el.onclick = () => {
-                    location.href = el.dataset.stationCardUrl;
-                }
+            document.getElementById('save-btn').addEventListener('click', () => {
+                form.action = '{% url 'search-new' %}';
+                form.submit();
             });
         });
     </script>
@@ -70,16 +80,25 @@
                     Charge Beacon notifies you about EV charger updates in your area.
                 </div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Step 1: Configure your search</li>
-                    <li class="list-group-item">Step 2: Subscribe to the RSS feed</li>
+                    <li class="list-group-item text-muted">
+                        Subscribe to the RSS feed or save search to get periodic wrap up emails.
+                    </li>
                 </ul>
-                <div class="card-footer text-body-secondary">
+                <div class="card-footer text-body-secondary text-center">
                     <a href="{{ feed_url }}" id="updates-feed-anchor">RSS Feed Link</a><br>
-                    More notification options coming soon!
                 </div>
             </div>
 
-            {% include 'app/search/search_form.html' %}
+            <form id="search-inputs" method="get">
+                {% include 'app/search/search_form.html' %}
+                {% if request.user.is_authenticated %}
+                    <div class="my-4">
+                        <button type="button" class="btn btn-outline-primary w-100" id="save-btn">
+                            Save Search
+                        </button>
+                    </div>
+                {% endif %}
+            </form>
         </div>
 
         <div class="col-lg-8 col-md-7" id="updates-container">
@@ -87,6 +106,4 @@
         </div>
 
     </div>
-
-    {% include 'app/footer.html' %}
 {% endblock %}

@@ -7,7 +7,7 @@
         Tags.init('#ev_area', {
             allowClear: true,
             selected: ['{{ selected_area_ids|join:"','" }}'],
-            server: 'area_autocomplete',
+            server: '/area_autocomplete',
             serverParams: {'selected': '{{ selected_area_ids|join:"," }}'},
             liveServer: true
         });

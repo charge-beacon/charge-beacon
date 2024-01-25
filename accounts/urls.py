@@ -4,10 +4,15 @@ from django_registration.backends.activation import views as reg_views
 from django.views.generic.base import TemplateView
 from accounts.views import (
     CustomRegistrationView, CustomLoginView, CustomPasswordResetView, CustomPasswordChangeView,
-    CustomPasswordResetConfirmView
+    CustomPasswordResetConfirmView, profile, confirm_change_email
 )
 
 urlpatterns = [
+    # profile
+    path('profile', profile, name='profile'),
+    path('profile/change_email/<slug:username>/<str:activation_key>', confirm_change_email,
+         name='confirm_change_email'),
+
     # registration
     path('accounts/register', CustomRegistrationView.as_view(), name='django_registration_register'),
     path('accounts/register/complete', TemplateView.as_view(

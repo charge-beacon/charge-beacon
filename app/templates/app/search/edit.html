@@ -1,0 +1,164 @@
+{% extends 'app/bs_base.html' %}
+
+{% load i18n %}
+
+{% block style_extra %}
+    {{ block.super }}
+    {% include 'app/search/search_styles.html' %}
+    <style>
+        .edit-search {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+{% endblock %}
+
+{% block script_extra %}
+    {{ block.super }}
+    {% include 'app/search/search_scripts.html' %}
+
+    <script type="module">
+        const form = document.getElementById('search-form');
+        const previewBtn = document.getElementById('preview-btn');
+        const previewModal = document.getElementById('preview-modal');
+        const previewContainer = document.getElementById('preview-content');
+        previewModal.addEventListener('show.bs.modal', () => {
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+            params.set('max_items', '5');
+            params.set('pagination', 'false');
+            fetch(`/updates_partial?${params.toString()}`)
+                .then(response => response.text())
+                .then(html => {
+                    previewContainer.innerHTML = html;
+                });
+        });
+        previewModal.addEventListener('hidden.bs.modal', () => {
+            previewContainer.innerHTML = `<h5 class="text-secondary">Loading...</h5>`;
+        });
+    </script>
+{% endblock %}
+
+{% block title %}{% if model %}{% trans 'Edit' %}{% else %}{% trans 'Create' %}{% endif %} |
+    {{ site.name }}{% endblock %}
+
+{% block container_content %}
+    <div class="edit-search">
+        <div class="row my-3">
+            <div class="col">
+                {% if model %}
+                    <h3>{% trans 'Edit Search' %}</h3>
+                {% else %}
+                    <h3>{% trans 'Create Search' %}</h3>
+                    <p class="text-muted">
+                        {% blocktrans %}
+                            Create a search to be notified whenever there is an EV charger updates
+                            for wherever you chose.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <form id="search-form" method="post" action="{{ action }}">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-4">
+                    <p>
+                        <label for="search-name"><strong>{% trans 'Name' %}</strong></label>
+                    </p>
+                </div>
+                <div class="col">
+                    <input name="name" id="search-name"
+                           class="form-control" type="text"
+                           maxlength="50"
+                           required autofocus>
+                </div>
+            </div>
+
+            <div class="row my-3">
+                <div class="col-md-4">
+                    <p><strong>{% trans 'Search Parameters' %}</strong></p>
+                    <p class="text-secondary">
+                        {% blocktrans %}
+                            Configure which areas and station criteria you're looking for.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+                <div class="col">
+                    {% include 'app/search/search_form.html' %}
+                    <p>
+                        <button class="btn btn-outline-secondary w-100"
+                                type="button"
+                                id="preview-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#preview-modal">
+                            Preview Results
+                        </button>
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>{% trans 'Notification Preference' %}</strong></p>
+                    <p class="text-secondary">
+                        {% blocktrans %}
+                            Select how you would like to be notified.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+
+                <div class="col">
+                    <p><strong>{% trans 'Email' %}</strong></p>
+                    <p class="text-secondary">
+                        {% blocktrans %}
+                            Choose how frequently to receive wrap up emails.
+                        {% endblocktrans %}
+                    </p>
+                    <div class="form-check form-switch mb-3">
+                        <input type="checkbox" name="daily_email" id="daily_email" value="true"
+                               class="form-check-input"
+                               {% if daily_email %}checked{% endif %}>
+                        <label for="daily_email" class="form-check-label">Daily</label>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input type="checkbox" name="weekly_email" id="weekly_email" value="true"
+                               class="form-check-input"
+                               {% if weekly_email or not model %}checked{% endif %}>
+                        <label for="weekly_email" class="form-check-label">Weekly</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row my-3">
+                <div class="offset-md-4 col-md-8">
+                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="modal fade" id="preview-modal" tabindex="-1" aria-labelledby="preview-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="preview-modal-title">{% trans 'Search Preview' %}</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="{% trans 'Close' %}"></button>
+                </div>
+                <div class="modal-body" id="preview-content">
+                    <h5 class="text-secondary">Loading...</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
