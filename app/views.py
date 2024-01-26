@@ -1,9 +1,10 @@
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from beacon.models import Search, Area
+from beacon.forms import SearchForm
 from app.models import Station, Update
 from app.renderer import get_changes
 from app.constants import LOOKUPS
@@ -28,9 +29,9 @@ def station(request, beacon_name):
 
 @login_required
 def searches(request):
-    saved = Search.objects.filter(user=request.user)
+    saved = Search.objects.filter(user=request.user).order_by('name')
     return render(request, 'app/search/list.html', {
-        'saved': saved
+        'searches': saved
     })
 
 
@@ -38,6 +39,16 @@ def searches(request):
 def new_search(request):
     ctx = get_search_context(request)
     ctx['action'] = reverse('search-new')
+    if request.method == 'POST':
+        data = get_search_form_data(request, ctx)
+
+        form = SearchForm(data, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('search-edit', search_id=form.instance.id)
+        else:
+            ctx['errors'] = form.errors
+
     return render(request, 'app/search/edit.html', ctx)
 
 
@@ -45,11 +56,48 @@ def new_search(request):
 def edit_search(request, search_id):
     search = get_object_or_404(Search, id=search_id)
     ctx = get_search_context(request)
+    if request.method == 'GET':
+        ctx['name'] = search.name
+        ctx['selected_networks'] = search.ev_networks
+        ctx['selected_area_ids'] = search.within.all().values_list('id', flat=True)
+        ctx['selected_areas'] = search.within.all()
+        ctx['selected_plug_types'] = search.plug_types
+        ctx['dc_fast'] = search.dc_fast
+        ctx['only_new'] = search.only_new
+        ctx['daily_email'] = search.daily_email
+        ctx['weekly_email'] = search.weekly_email
+    else:
+        if request.POST.get('delete', None) == 'true':
+            search.delete()
+            return redirect('searches-list')
+
+        data = get_search_form_data(request, ctx)
+
+        form = SearchForm(data, instance=search, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('search-edit', search_id=form.instance.id)
+        else:
+            ctx['errors'] = form.errors
+
     ctx.update({
         'model': search,
         'action': reverse('search-edit', kwargs={'search_id': search_id})
     })
     return render(request, 'app/search/edit.html', ctx)
+
+
+def get_search_form_data(request, ctx) -> dict:
+    return {
+        'name': request.POST.get('name', ''),
+        'ev_networks': ctx['selected_networks'],
+        'plug_types': ctx['selected_plug_types'],
+        'dc_fast': ctx['dc_fast'],
+        'only_new': ctx['only_new'],
+        'within': ctx['selected_areas'],
+        'daily_email': request.POST.get('daily_email', None),
+        'weekly_email': request.POST.get('weekly_email', None),
+    }
 
 
 def get_search_context(request):
@@ -58,6 +106,8 @@ def get_search_context(request):
     selected_areas = get_param(request, 'ev_area')
     selected_area_objects = {str(a.id): a for a in Area.objects.filter(id__in=selected_areas)}
 
+    req_data = request.GET if request.method == 'GET' else request.POST
+
     ctx = {
         'networks': Station.objects.all_networks(),
         'selected_networks': selected_networks,
@@ -65,8 +115,8 @@ def get_search_context(request):
         'selected_areas': [selected_area_objects[a] for a in selected_areas],
         'plug_types': LOOKUPS['ev_connector_types'],
         'selected_plug_types': selected_plug_types,
-        'dc_fast': request.GET.get('dc_fast', None) == 'true',
-        'only_new': request.GET.get('only_new', None) == 'true'
+        'dc_fast': req_data.get('dc_fast', None) == 'true',
+        'only_new': req_data.get('only_new', None) == 'true'
     }
 
     return ctx

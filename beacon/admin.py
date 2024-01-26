@@ -9,6 +9,7 @@ from beacon.models import (
 class SearchAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'created')
     search_fields = ('name', 'user__username', 'user__email')
+    readonly_fields = ('user', 'within')
 
 
 @admin.register(Area)

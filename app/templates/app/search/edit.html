@@ -44,7 +44,7 @@
 
 {% block container_content %}
     <div class="edit-search">
-        <div class="row my-3">
+        <div class="row my-3 py-1">
             <div class="col">
                 {% if model %}
                     <h3>{% trans 'Edit Search' %}</h3>
@@ -58,10 +58,31 @@
                     </p>
                 {% endif %}
             </div>
+            {% if model %}
+                <div class="col d-flex justify-content-end">
+                    <form method="post" action="{% url 'search-edit' search_id=model.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete" value="true">
+                        <button class="btn btn-outline-danger">{% trans 'Delete' %}</button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
 
         <form id="search-form" method="post" action="{{ action }}">
             {% csrf_token %}
+
+            {% if errors %}
+                <div class="row">
+                    {% for error_key, error_list in errors %}
+                        {% for error in error_list %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <div class="row">
                 <div class="col-md-4">
@@ -73,7 +94,8 @@
                     <input name="name" id="search-name"
                            class="form-control" type="text"
                            maxlength="50"
-                           required autofocus>
+                           value="{{ name }}"
+                           required {% if not model %}autofocus{% endif %}>
                 </div>
             </div>
 
@@ -136,7 +158,7 @@
 
             <div class="row my-3">
                 <div class="offset-md-4 col-md-8">
-                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                    <button type="submit" class="btn btn-primary w-100">{% trans 'Save' %}</button>
                 </div>
             </div>
 

@@ -39,12 +39,22 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="searchesDropdownToggle">
                                 {% if searches %}
-                                    {# list searches #}
+                                    {% for search in searches %}
+                                        <li>
+                                            <a href="{% url 'search-edit' search_id=search.id %}"
+                                               class="dropdown-item">{{ search.name }}</a>
+                                        </li>
+                                    {% endfor %}
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
                                 {% endif %}
                                 <li>
+                                    {% if has_more_searches %}
+                                        <li>
+                                            <a href="{% url 'searches-list' %}" class="dropdown-item">View All ({{ searches_count }})</a>
+                                        </li>
+                                    {% endif %}
                                     <a class="dropdown-item" href="{% url 'search-new' %}">Create Search</a>
                                 </li>
                             </ul>

@@ -1,15 +1,28 @@
 {% extends 'app/bs_base.html' %}
 
-{% load i18n %}
+{% load i18n humanize %}
 
 {% block title %}{% trans 'Saved Searches' %} | {{ site.name }}{% endblock %}
 
 {% block container_content %}
 
     <div class="row my-3">
-        <div class="col">
-            <h3>Saved Searches</h3>
+        <div class="col-md-4">
+            <h3>{% trans 'Saved Searches' %}</h3>
+            <p class="text-secondary">
+                {% blocktrans %}
+                    Saved searches allow you to get notified whenever new or updates to chargers are added to the site.
+                {% endblocktrans %}
+            </p>
             <a class="btn btn-primary w-100" href="{% url 'search-new' %}">Create Search</a>
+        </div>
+        <div class="col">
+            {% for search in searches %}
+                <a class="border-bottom mb-1 d-block py-3 link-underline link-underline-opacity-0"
+                   href="{% url 'search-edit' search_id=search.id %}">
+                    {{ search.name }}
+                </a>
+            {% endfor %}
         </div>
     </div>
 
