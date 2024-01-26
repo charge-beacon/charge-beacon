@@ -22,7 +22,8 @@ console_command = "/code/manage.py shell"
 
 [processes]
   app = "gunicorn --bind :8000 --workers 2 --access-logfile - charging.wsgi"
-  cron = "supercronic /code/crontab"
+  worker = "celery -A charging.celery worker --loglevel=info"
+  scheduler = "celery -A charging.celery beat --loglevel=info"
 
 [deploy]
   release_command = "python manage.py migrate --noinput"
@@ -31,6 +32,12 @@ console_command = "/code/manage.py shell"
   cpu_kind = "shared"
   cpus = 1
   memory_mb = 2048
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+  processes = ["scheduler"]
 
 [[statics]]
   guest_path = "/code/staticfiles"

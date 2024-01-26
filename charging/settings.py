@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'django_registration',
     'anymail',
     'django_countries',
+    'django_celery_results',
     'accounts',
     'app',
     'beacon'
@@ -115,6 +117,16 @@ if 'DATABASE_URL' in os.environ:
         engine='django.contrib.gis.db.backends.postgis',
         conn_max_age=600,
     )
+
+CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/")
+CELERY_RESULT_BACKEND = "django-db"
+
+CELERY_BEAT_SCHEDULE = {
+    'sync_fuel_stations_every_15_min': {
+        'task': 'app.tasks.sync_fuel_stations',
+        'schedule': crontab(minute='*/15'),
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

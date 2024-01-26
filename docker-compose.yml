@@ -10,3 +10,8 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+  redis:
+    image: "redis:7"
+    restart: always
+    ports:
+     - "6379:6379"
