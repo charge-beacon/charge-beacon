@@ -41,7 +41,7 @@
                                 {% if searches %}
                                     {% for search in searches %}
                                         <li>
-                                            <a href="{% url 'search-edit' search_id=search.id %}"
+                                            <a href="{% url 'index' %}?search_id={{ search.id }}"
                                                class="dropdown-item">{{ search.name }}</a>
                                         </li>
                                     {% endfor %}
@@ -50,11 +50,10 @@
                                     </li>
                                 {% endif %}
                                 <li>
-                                    {% if has_more_searches %}
-                                        <li>
-                                            <a href="{% url 'searches-list' %}" class="dropdown-item">View All ({{ searches_count }})</a>
-                                        </li>
-                                    {% endif %}
+                                    <a href="{% url 'searches-list' %}" class="dropdown-item">View All
+                                        ({{ searches_count }})</a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item" href="{% url 'search-new' %}">Create Search</a>
                                 </li>
                             </ul>

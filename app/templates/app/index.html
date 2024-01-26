@@ -93,9 +93,15 @@
                 {% include 'app/search/search_form.html' %}
                 {% if request.user.is_authenticated %}
                     <div class="my-4">
-                        <button type="button" class="btn btn-outline-primary w-100" id="save-btn">
-                            Save Search
-                        </button>
+                        {% if search %}
+                            <a href="{% url 'search-edit' search_id=search.id %}" class="btn btn-outline-primary w-100">
+                                Edit Search
+                            </a>
+                        {% else %}
+                            <button type="button" class="btn btn-outline-primary w-100" id="save-btn">
+                                Save Search
+                            </button>
+                        {% endif %}
                     </div>
                 {% endif %}
             </form>
