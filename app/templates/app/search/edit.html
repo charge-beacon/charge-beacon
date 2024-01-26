@@ -39,14 +39,14 @@
     </script>
 {% endblock %}
 
-{% block title %}{% if model %}{% trans 'Edit' %}{% else %}{% trans 'Create' %}{% endif %} |
+{% block title %}{% if search %}{% trans 'Edit' %}{% else %}{% trans 'Create' %}{% endif %} |
     {{ site.name }}{% endblock %}
 
 {% block container_content %}
     <div class="edit-search">
         <div class="row my-3 py-1">
             <div class="col">
-                {% if model %}
+                {% if search %}
                     <h3>{% trans 'Edit Search' %}</h3>
                 {% else %}
                     <h3>{% trans 'Create Search' %}</h3>
@@ -58,9 +58,9 @@
                     </p>
                 {% endif %}
             </div>
-            {% if model %}
+            {% if search %}
                 <div class="col d-flex justify-content-end">
-                    <form method="post" action="{% url 'search-edit' search_id=model.id %}">
+                    <form method="post" action="{% url 'search-edit' search_id=search.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="delete" value="true">
                         <button class="btn btn-outline-danger">{% trans 'Delete' %}</button>
@@ -94,8 +94,8 @@
                     <input name="name" id="search-name"
                            class="form-control" type="text"
                            maxlength="50"
-                           value="{{ name }}"
-                           required {% if not model %}autofocus{% endif %}>
+                           value="{{ search.name }}"
+                           required {% if not search %}autofocus{% endif %}>
                 </div>
             </div>
 
@@ -150,7 +150,7 @@
                     <div class="form-check form-switch mb-3">
                         <input type="checkbox" name="weekly_email" id="weekly_email" value="true"
                                class="form-check-input"
-                               {% if weekly_email or not model %}checked{% endif %}>
+                               {% if weekly_email or not search %}checked{% endif %}>
                         <label for="weekly_email" class="form-check-label">Weekly</label>
                     </div>
                 </div>

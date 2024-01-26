@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from beacon.models import Search, Area
@@ -11,11 +12,13 @@ from app.constants import LOOKUPS
 
 
 def index(request):
-    return render(request, 'app/index.html', get_updates_context(request))
+    ctx = get_updates_context(request, search_id=request.GET.get('search_id', None))
+    return render(request, 'app/index.html', ctx)
 
 
 def updates_partial(request):
-    return render(request, 'app/updates_body.html', get_updates_context(request))
+    ctx = get_updates_context(request, search_id=request.GET.get('search_id', None))
+    return render(request, 'app/updates_body.html', ctx)
 
 
 def station(request, beacon_name):
@@ -54,36 +57,24 @@ def new_search(request):
 
 @login_required
 def edit_search(request, search_id):
-    search = get_object_or_404(Search, id=search_id)
-    ctx = get_search_context(request)
-    if request.method == 'GET':
-        ctx['name'] = search.name
-        ctx['selected_networks'] = search.ev_networks
-        ctx['selected_area_ids'] = search.within.all().values_list('id', flat=True)
-        ctx['selected_areas'] = search.within.all()
-        ctx['selected_plug_types'] = search.plug_types
-        ctx['dc_fast'] = search.dc_fast
-        ctx['only_new'] = search.only_new
-        ctx['daily_email'] = search.daily_email
-        ctx['weekly_email'] = search.weekly_email
-    else:
+    ctx = get_search_context(request, search_id=search_id)
+
+    if request.method == 'POST':
         if request.POST.get('delete', None) == 'true':
-            search.delete()
+            ctx['search'].delete()
             return redirect('searches-list')
 
         data = get_search_form_data(request, ctx)
 
-        form = SearchForm(data, instance=search, user=request.user)
+        form = SearchForm(data, instance=ctx['search'], user=request.user)
         if form.is_valid():
             form.save()
             return redirect('search-edit', search_id=form.instance.id)
         else:
             ctx['errors'] = form.errors
 
-    ctx.update({
-        'model': search,
-        'action': reverse('search-edit', kwargs={'search_id': search_id})
-    })
+    ctx['action'] = reverse('search-edit', kwargs={'search_id': search_id})
+
     return render(request, 'app/search/edit.html', ctx)
 
 
@@ -100,30 +91,46 @@ def get_search_form_data(request, ctx) -> dict:
     }
 
 
-def get_search_context(request):
-    selected_networks = get_param(request, 'ev_network')
-    selected_plug_types = get_param(request, 'plug_types')
-    selected_areas = get_param(request, 'ev_area')
-    selected_area_objects = {str(a.id): a for a in Area.objects.filter(id__in=selected_areas)}
-
-    req_data = request.GET if request.method == 'GET' else request.POST
-
+def get_search_context(request, search_id=None):
     ctx = {
         'networks': Station.objects.all_networks(),
-        'selected_networks': selected_networks,
-        'selected_area_ids': selected_areas,
-        'selected_areas': [selected_area_objects[a] for a in selected_areas],
         'plug_types': LOOKUPS['ev_connector_types'],
-        'selected_plug_types': selected_plug_types,
-        'dc_fast': req_data.get('dc_fast', None) == 'true',
-        'only_new': req_data.get('only_new', None) == 'true'
     }
+    if search_id is not None:
+        search = get_object_or_404(Search, id=search_id)
+        if search.is_public or search.user == request.user:
+            ctx['search'] = search
+            ctx['selected_networks'] = search.ev_networks
+            ctx['selected_area_ids'] = search.within.all().values_list('id', flat=True)
+            ctx['selected_areas'] = search.within.all()
+            ctx['selected_plug_types'] = search.plug_types
+            ctx['dc_fast'] = search.dc_fast
+            ctx['only_new'] = search.only_new
+            ctx['daily_email'] = search.daily_email
+            ctx['weekly_email'] = search.weekly_email
+        else:
+            raise Http404('invalid search')
+    else:
+        selected_networks = get_param(request, 'ev_network')
+        selected_plug_types = get_param(request, 'plug_types')
+        selected_areas = get_param(request, 'ev_area')
+        selected_area_objects = {str(a.id): a for a in Area.objects.filter(id__in=selected_areas)}
+
+        req_data = request.GET if request.method == 'GET' else request.POST
+
+        ctx['selected_networks'] = selected_networks
+        ctx['selected_area_ids'] = selected_areas
+        ctx['selected_areas'] = [selected_area_objects[a] for a in selected_areas]
+
+        ctx['selected_plug_types'] = selected_plug_types
+        ctx['dc_fast'] = req_data.get('dc_fast', None) == 'true'
+        ctx['only_new'] = req_data.get('only_new', None) == 'true'
 
     return ctx
 
 
-def get_updates_context(request):
-    ctx = get_search_context(request)
+def get_updates_context(request, search_id=None):
+    ctx = get_search_context(request, search_id=search_id)
 
     queryset = Update.objects.feed(
         ev_networks=ctx['selected_networks'],

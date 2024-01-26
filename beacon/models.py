@@ -15,6 +15,7 @@ class Search(models.Model):
     within = models.ManyToManyField('Area', related_name='within', blank=True)
     daily_email = models.BooleanField(default=False)
     weekly_email = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

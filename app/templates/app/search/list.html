@@ -7,21 +7,26 @@
 {% block container_content %}
 
     <div class="row my-3">
-        <div class="col-md-4">
+        <div class="col-md-4 mb-3">
             <h3>{% trans 'Saved Searches' %}</h3>
             <p class="text-secondary">
                 {% blocktrans %}
                     Saved searches allow you to get notified whenever new or updates to chargers are added to the site.
                 {% endblocktrans %}
             </p>
-            <a class="btn btn-primary w-100" href="{% url 'search-new' %}">Create Search</a>
+            <a class="btn btn-primary w-100" href="{% url 'search-new' %}">{% trans 'Create Search' %}</a>
         </div>
         <div class="col">
             {% for search in searches %}
-                <a class="border-bottom mb-1 d-block py-3 link-underline link-underline-opacity-0"
-                   href="{% url 'search-edit' search_id=search.id %}">
-                    {{ search.name }}
-                </a>
+                <div class="d-flex justify-content-between {% if not forloop.last %}border-bottom{% endif %}">
+                    <a href="{% url 'index' %}?search_id={{ search.id }}"
+                       class="d-block w-100 py-3 flex-grow-1 fs-4 link-underline link-underline-opacity-0">
+                        {{ search.name }}</a>
+                    <a href="{% url 'search-edit' search_id=search.id %}"
+                       class="btn btn-outline-secondary my-3">
+                        {% trans 'Edit' %}
+                    </a>
+                </div>
             {% endfor %}
         </div>
     </div>
