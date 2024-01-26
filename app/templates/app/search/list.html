@@ -18,7 +18,7 @@
         </div>
         <div class="col">
             {% for search in searches %}
-                <div class="d-flex justify-content-between {% if not forloop.last %}border-bottom{% endif %}">
+                <div class="d-flex justify-content-between border-bottom">
                     <a href="{% url 'index' %}?search_id={{ search.id }}"
                        class="d-block w-100 py-3 flex-grow-1 fs-4 link-underline link-underline-opacity-0">
                         {{ search.name }}</a>
@@ -27,6 +27,8 @@
                         {% trans 'Edit' %}
                     </a>
                 </div>
+            {% empty %}
+                <p>Nothing here yet!</p>
             {% endfor %}
         </div>
     </div>
