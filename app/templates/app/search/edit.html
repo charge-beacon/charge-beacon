@@ -144,14 +144,39 @@
                         <input type="checkbox" name="daily_email" id="daily_email" value="true"
                                class="form-check-input"
                                {% if daily_email %}checked{% endif %}>
-                        <label for="daily_email" class="form-check-label">Daily</label>
+                        <label for="daily_email" class="form-check-label">
+                            {% trans 'Daily' %}
+                        </label>
                     </div>
 
                     <div class="form-check form-switch mb-3">
                         <input type="checkbox" name="weekly_email" id="weekly_email" value="true"
                                class="form-check-input"
                                {% if weekly_email or not search %}checked{% endif %}>
-                        <label for="weekly_email" class="form-check-label">Weekly</label>
+                        <label for="weekly_email" class="form-check-label">
+                            {% trans 'Weekly' %}
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row border-top pt-3">
+                <div class="col-md-4">
+                    <p><strong>{% trans 'Access' %}</strong></p>
+                </div>
+                <div class="col">
+                    <div class="form-check form-switch mb-3">
+                        <input type="checkbox" name="is_public" id="is_public" value="true"
+                               class="form-check-input" aria-describedby="visibility-help"
+                               {% if search.is_public %}checked{% endif %}>
+                        <label for="is_public" class="form-check-label">
+                            {% trans 'Public' %}
+                        </label>
+                        <div id="visibility-help" class="form-text">
+                            {% blocktrans %}
+                                Selecting public allows you to share your search URL with anyone.
+                            {% endblocktrans %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -174,7 +199,7 @@
                             aria-label="{% trans 'Close' %}"></button>
                 </div>
                 <div class="modal-body" id="preview-content">
-                    <h5 class="text-secondary">Loading...</h5>
+                    <h5 class="text-secondary">{% trans 'Loading' %}...</h5>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>

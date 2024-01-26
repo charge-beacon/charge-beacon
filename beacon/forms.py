@@ -7,7 +7,7 @@ class SearchForm(forms.ModelForm):
         model = Search
         fields = [
             'name', 'ev_networks', 'plug_types', 'dc_fast', 'only_new',
-            'within', 'daily_email', 'weekly_email'
+            'within', 'daily_email', 'weekly_email', 'is_public'
         ]
 
     def __init__(self, *args, **kwargs):

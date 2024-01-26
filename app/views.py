@@ -88,6 +88,7 @@ def get_search_form_data(request, ctx) -> dict:
         'within': ctx['selected_areas'],
         'daily_email': request.POST.get('daily_email', None),
         'weekly_email': request.POST.get('weekly_email', None),
+        'is_public': request.POST.get('is_public', None)
     }
 
 
