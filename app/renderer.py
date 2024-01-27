@@ -37,6 +37,8 @@ def get_changes(upd: Update) -> [Change]:
 
 
 def render_field(field: str, value: str) -> str:
+    if value is None:
+        return ''
     if field == 'cards_accepted':
         field_value = ', '.join([LOOKUPS['cards_accepted'].get(v, v) for v in value.split()])
     elif field in LOOKUPS:

@@ -186,7 +186,7 @@ class Station(models.Model):
         return state_as_handle(self.state)
 
     def get_absolute_url(self):
-        return reverse('station', args=[self.beacon_name])
+        return reverse('station', kwargs={'beacon_name': self.beacon_name})
 
     def key(self):
         return f'{self.ev_network}: {self.street_address}, {self.city}, {self.state}'.lower()
