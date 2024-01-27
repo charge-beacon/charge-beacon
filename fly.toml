@@ -36,6 +36,12 @@ console_command = "/code/manage.py shell"
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
+  memory_mb = 2048
+  processes = ["worker"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
   memory_mb = 512
   processes = ["scheduler"]
 
