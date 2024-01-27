@@ -10,7 +10,7 @@ RUN mkdir -p /code
 WORKDIR /code
 
 RUN apt-get update && apt-get install -y \
-    libpq-dev gcc git curl \
+    libpq-dev postgresql-client gcc git curl \
     binutils libproj-dev gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 

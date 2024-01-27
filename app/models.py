@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.aggregates import Union
+from django.contrib.postgres.indexes import GinIndex
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import dateparse, timezone
@@ -152,10 +153,10 @@ class Station(models.Model):
     street_address = models.TextField(blank=True, null=True)
     zip = models.TextField(blank=True, null=True)
     ev_connector_types = models.JSONField(blank=True, null=True)
-    ev_dc_fast_num = models.IntegerField(blank=True, null=True)
+    ev_dc_fast_num = models.IntegerField(blank=True, null=True, db_index=True)
     ev_level1_evse_num = models.IntegerField(blank=True, null=True)
     ev_level2_evse_num = models.IntegerField(blank=True, null=True)
-    ev_network = models.TextField(blank=True, null=True)
+    ev_network = models.TextField(blank=True, null=True, db_index=True)
     ev_network_web = models.URLField(blank=True, null=True)
     ev_other_evse = models.TextField(blank=True, null=True)
     ev_pricing = models.TextField(blank=True, null=True)
@@ -170,6 +171,11 @@ class Station(models.Model):
     point = models.PointField(blank=True, null=True)
 
     objects = StationQuerySet.as_manager()
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['ev_connector_types']),
+        ]
 
     @property
     def network_name_as_handle(self):
@@ -256,7 +262,7 @@ class UpdateQuerySet(models.QuerySet):
 class Update(models.Model):
     station = models.ForeignKey(Station, on_delete=models.CASCADE, editable=False, related_name='updates')
     created_at = models.DateTimeField(auto_now_add=True)
-    is_creation = models.BooleanField(default=False)
+    is_creation = models.BooleanField(default=False, db_index=True)
     current = models.JSONField(blank=True, null=True)
     previous = models.JSONField(blank=True, null=True)
 

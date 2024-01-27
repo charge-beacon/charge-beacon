@@ -9,9 +9,11 @@
             selected: ['{{ selected_area_ids|join:"','" }}'],
             server: '/area_autocomplete',
             serverParams: {'selected': '{{ selected_area_ids|join:"," }}'},
-            liveServer: true
+            liveServer: true,
+            debounceTime: 25,
+            max: 10,
         });
-        Tags.init('#ev_network', {allowClear: true});
+        Tags.init('#ev_network', {allowClear: true, max: 10});
         Tags.init('#plug_types', {allowClear: true});
 
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
