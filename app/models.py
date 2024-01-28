@@ -11,10 +11,23 @@ import randomname
 from django.forms import model_to_dict
 from beacon.models import Area
 from app.constants import LOOKUPS, US_ABBREV_TO_STATE
+from app.tasks import publish_update
+
+
+class ImportStats:
+    created: int
+    updated: int
+    skipped: int
+
+    def __init__(self):
+        self.created = 0
+        self.updated = 0
+        self.skipped = 0
 
 
 class StationQuerySet(models.QuerySet):
-    def import_from_nrel(self, data):
+    def import_from_nrel(self, data) -> ImportStats:
+        stats = ImportStats()
         interesting_fields = [
             'id', 'access_code', 'access_days_time', 'access_detail_code', 'cards_accepted', 'date_last_confirmed',
             'expected_date', 'fuel_type_code', 'groups_with_access_code', 'maximum_vehicle_class', 'open_date',
@@ -27,27 +40,39 @@ class StationQuerySet(models.QuerySet):
         no_history_fields = {'updated_at', 'date_last_confirmed'}
         for station in data['fuel_stations']:
             clean_station_json(station)
+
             qs = self.filter(id=station['id'])
-            cobj = Station(**{k: v for k, v in station.items() if k in interesting_fields})
+            create = Station(**{k: v for k, v in station.items() if k in interesting_fields})
             updated_fields = []
+            update = None
+
             if qs.exists():
-                obj = qs.first()
+                existing = qs.first()
                 for field in interesting_fields:
-                    f1 = getattr(obj, field)
-                    f2 = getattr(cobj, field)
+                    f1 = getattr(existing, field)
+                    f2 = getattr(create, field)
                     if f1 != f2:
                         updated_fields.append(field)
-                        setattr(obj, field, f2)
-                point_updated = update_point(station, obj)
+                        setattr(existing, field, f2)
+                point_updated = update_point(station, existing)
                 if updated_fields or point_updated:
                     if not updated_fields:
-                        obj.skip_history_when_saving = True
-                    obj.save()
+                        existing.skip_history_when_saving = True
+                    existing.save()
                 if not all(f in no_history_fields for f in updated_fields):
-                    Update.objects.station_updated(obj)
+                    stats.updated += 1
+                    update = Update.objects.station_updated(existing)
+                else:
+                    stats.skipped += 1
             else:
-                cobj.save()
-                Update.objects.station_updated(cobj, is_creation=True)
+                create.save()
+                stats.created += 1
+                update = Update.objects.station_updated(create, is_creation=True)
+
+            if update:
+                publish_update.delay(update.id)
+
+        return stats
 
     def link_stations(self):
         all_stations = self.all()
@@ -237,9 +262,10 @@ class UpdateQuerySet(models.QuerySet):
             'current': dict_from_model(history[0]),
             'previous': dict_from_model(history[1]) if len(history) > 1 else None,
         }
-        self.create(**args)
+        return self.create(**args)
 
-    def feed(self, ev_networks: list[str] = None, areas: list[str] = None, ev_connector_types: list[str] = None, station: Station = None):
+    def feed(self, ev_networks: list[str] = None, areas: list[str] = None, ev_connector_types: list[str] = None,
+             station: Station = None):
         qs = self.all().select_related('station')
         if station:
             qs = qs.filter(station=station)

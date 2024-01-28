@@ -1,6 +1,49 @@
 from django.contrib.gis.db import models
+from django.db import IntegrityError
+from django.db.models.query import Q
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth import get_user_model
+
+
+class SearchQuerySet(models.QuerySet):
+    def publish(self, update, idempotency_key) -> (int, list['Search']):
+        query = Q(user__is_active=True)
+        # identify searches that specify the EV networks or have no EV networks defined
+        query &= Q(ev_networks__contains=[update.station.ev_network]) | Q(ev_networks__len=0)
+
+        # identify searches that specify the plug types or have no plug types defined
+        if len(update.station.ev_connector_types):
+            plug_type_q = Q(plug_types__contains=[update.station.ev_connector_types[0]])
+            for plug_type in update.station.ev_connector_types[1:]:
+                plug_type_q |= Q(plug_types__contains=[plug_type])
+            query &= plug_type_q | Q(plug_types__len=0)
+
+        # identify searches that are within the station's area or have no areas defined
+        query &= Q(within__geom__contains=update.station.point) | Q(within=None)
+
+        # if the station is not a DC fast charger, only notify searches that do not specify DC fast chargers
+        if update.station.ev_dc_fast_num == 0:
+            query &= Q(dc_fast=False)
+        # if the update is not new, only notify searches that do not specify new stations
+        if not update.is_creation:
+            query &= Q(only_new=False)
+
+        searches = self.filter(query)
+        errors = []
+        n_success = 0
+
+        for search in searches:
+            try:
+                SearchResult.objects.create(
+                    search=search,
+                    update=update,
+                    idempotency_key=idempotency_key
+                )
+                n_success += 1
+            except IntegrityError:
+                errors.append(search)
+
+        return n_success, errors
 
 
 class Search(models.Model):
@@ -16,12 +59,28 @@ class Search(models.Model):
     daily_email = models.BooleanField(default=False)
     weekly_email = models.BooleanField(default=True)
     is_public = models.BooleanField(default=False)
+    last_notified_id = models.DateTimeField(null=True, blank=True)
+
+    objects = SearchQuerySet.as_manager()
+
+    class Meta:
+        verbose_name_plural = 'Searches'
 
     def __str__(self):
         return self.name
 
+
+class SearchResult(models.Model):
+    search = models.ForeignKey(Search, on_delete=models.CASCADE)
+    update = models.ForeignKey('app.Update', on_delete=models.CASCADE)
+    idempotency_key = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+
     class Meta:
-        verbose_name_plural = 'Searches'
+        unique_together = ('search', 'update', 'idempotency_key')
+
+    def __str__(self):
+        return str(self.created)
 
 
 class AreaType(models.TextChoices):
