@@ -120,6 +120,7 @@ if 'DATABASE_URL' in os.environ:
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/")
 CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_EXTENDED = True
 
 CELERY_BEAT_SCHEDULE = {
     'sync_fuel_stations_every_15_min': {

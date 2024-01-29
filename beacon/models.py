@@ -8,22 +8,26 @@ from django.contrib.auth import get_user_model
 class SearchQuerySet(models.QuerySet):
     def publish(self, update, idempotency_key) -> (int, list['Search']):
         query = Q(user__is_active=True)
-        # identify searches that specify the EV networks or have no EV networks defined
-        query &= Q(ev_networks__contains=[update.station.ev_network]) | Q(ev_networks__len=0)
 
-        # identify searches that specify the plug types or have no plug types defined
+        # notify searches that specify the EV networks or have no EV networks defined
+        if update.station.ev_network is not None:
+            query &= Q(ev_networks__contains=[update.station.ev_network]) | Q(ev_networks__len=0)
+
+        # notify searches that specify the plug types or have no plug types defined
         if len(update.station.ev_connector_types):
             plug_type_q = Q(plug_types__contains=[update.station.ev_connector_types[0]])
             for plug_type in update.station.ev_connector_types[1:]:
                 plug_type_q |= Q(plug_types__contains=[plug_type])
             query &= plug_type_q | Q(plug_types__len=0)
 
-        # identify searches that are within the station's area or have no areas defined
-        query &= Q(within__geom__contains=update.station.point) | Q(within=None)
+        # notify searches that are within the station's area or have no areas defined
+        if update.station.point is not None:
+            query &= Q(within__geom__contains=update.station.point) | Q(within=None)
 
         # if the station is not a DC fast charger, only notify searches that do not specify DC fast chargers
         if update.station.ev_dc_fast_num == 0:
             query &= Q(dc_fast=False)
+
         # if the update is not new, only notify searches that do not specify new stations
         if not update.is_creation:
             query &= Q(only_new=False)

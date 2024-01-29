@@ -32,19 +32,27 @@ def sync_fuel_stations(task):
     logging.info("[Started] scraping data from %s ....", URL)
     Station = apps.get_model("app", "Station")
     data = requests.get(URL, params=params).json()
-    logging.Info('[Progress] got %d stations from NREL', len(data.get('fuel_stations', [])))
+    logging.info('[Progress] got %d stations from NREL', len(data.get('fuel_stations', [])))
     stats = Station.objects.import_from_nrel(data)
     Station.objects.link_stations()
-    logging.info("[Completed] scrape %d imported %d updated %d skipped", stats.imported, stats.updated, stats.skipped)
+    logging.info("[Completed] scrape %d created %d updated %d skipped", stats.created, stats.updated, stats.skipped)
+    return {
+        'created': stats.created,
+        'updated': stats.updated,
+        'skipped': stats.skipped,
+    }
 
 
 @shared_task
 def publish_update(update_id):
     Update = apps.get_model("app", "Update")
-    Search = apps.get_model("app", "Search")
+    Search = apps.get_model("beacon", "Search")
     update = Update.objects.get(id=update_id)
-    n_published, errors = Search.objects.publish(update, f'update-{update_id}-{update.created}')
+    n_published, errors = Search.objects.publish(update, f'update-{update_id}-{update.created_at}')
     logging.info("[Published] %d searches %d errors for update %s", n_published, len(errors), update_id)
     for error in errors:
         logging.error("[Publish Error] search publish error %s", error.id)
-
+    return {
+        'published': n_published,
+        'errors': len(errors),
+    }
