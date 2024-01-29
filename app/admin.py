@@ -24,6 +24,7 @@ class PersonaAdmin(admin.ModelAdmin):
 @admin.register(Update)
 class UpdateAdmin(admin.ModelAdmin):
     list_display = ('station_full_address', 'created_at')
+    readonly_fields = ('station',)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

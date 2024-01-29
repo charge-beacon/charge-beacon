@@ -10,7 +10,8 @@ from simple_history.models import HistoricalRecords
 import randomname
 from django.forms import model_to_dict
 from beacon.models import Area
-from app.constants import LOOKUPS, US_ABBREV_TO_STATE
+from app.caching import cached
+from app.constants import LOOKUPS
 from app.tasks import publish_update
 
 
@@ -65,6 +66,7 @@ class StationQuerySet(models.QuerySet):
                 else:
                     stats.skipped += 1
             else:
+                update_point(station, create)
                 create.save()
                 stats.created += 1
                 update = Update.objects.station_updated(create, is_creation=True)
@@ -94,6 +96,7 @@ class StationQuerySet(models.QuerySet):
     def primaries(self):
         return self.filter(linked_to__isnull=True)
 
+    @cached(60 * 60 * 24, key='all_station_networks', version=1)
     def all_networks(self):
         count = models.Count('ev_network', filter=models.Q(linked_to__isnull=True))
         result = self.values('ev_network').annotate(count=count).order_by('ev_network')
@@ -108,21 +111,6 @@ class StationQuerySet(models.QuerySet):
                 'count': r['count'],
             })
         return sorted(networks, key=lambda x: x['name'].lower())
-
-    def all_states(self):
-        count = models.Count('state', filter=models.Q(linked_to__isnull=True))
-        result = self.values('state').annotate(count=count).order_by('state')
-        states = []
-        for r in result:
-            if not r['state']:
-                continue
-            states.append({
-                'name': US_ABBREV_TO_STATE.get(r['state'].upper(), r['state']),
-                'id': r['state'],
-                'handle': state_as_handle(r['state']),
-                'count': r['count'],
-            })
-        return sorted(states, key=lambda x: x['name'])
 
 
 NAME_ARGS = (
@@ -286,8 +274,8 @@ class UpdateQuerySet(models.QuerySet):
 
 
 class Update(models.Model):
-    station = models.ForeignKey(Station, on_delete=models.CASCADE, editable=False, related_name='updates')
-    created_at = models.DateTimeField(auto_now_add=True)
+    station = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='updates')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     is_creation = models.BooleanField(default=False, db_index=True)
     current = models.JSONField(blank=True, null=True)
     previous = models.JSONField(blank=True, null=True)
