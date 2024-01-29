@@ -42,7 +42,12 @@
                                     {% for search in searches %}
                                         <li>
                                             <a href="{% url 'index' %}?search_id={{ search.id }}"
-                                               class="dropdown-item">{{ search.name }}</a>
+                                               class="dropdown-item">
+                                                <span>{{ search.name }}</span>
+                                                {% if search.unread_count %}
+                                                    <span class="badge rounded-pill text-bg-primary ml-3">{{ search.unread_count }}</span>
+                                                {% endif %}
+                                            </a>
                                         </li>
                                     {% endfor %}
                                     <li>

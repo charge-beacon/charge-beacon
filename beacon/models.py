@@ -1,6 +1,9 @@
+from datetime import datetime
 from django.contrib.gis.db import models
 from django.db import IntegrityError
-from django.db.models.query import Q
+from django.utils import timezone
+from django.db.models.query import Q, F
+from django.db.models.aggregates import Count
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth import get_user_model
 
@@ -49,6 +52,12 @@ class SearchQuerySet(models.QuerySet):
 
         return n_success, errors
 
+    def with_unread_count(self):
+        newer_than_last_notified = Q(results__created__gt=F('last_notified_timestamp'))
+        return self.annotate(
+            unread_count=Count('results', filter=newer_than_last_notified)
+        )
+
 
 class Search(models.Model):
     name = models.CharField(max_length=255)
@@ -63,7 +72,9 @@ class Search(models.Model):
     daily_email = models.BooleanField(default=False)
     weekly_email = models.BooleanField(default=True)
     is_public = models.BooleanField(default=False)
-    last_notified_id = models.DateTimeField(null=True, blank=True)
+    last_notified_timestamp = models.DateTimeField(
+        default=timezone.make_aware(datetime(1, 1, 1, 0, 0))
+    )
 
     objects = SearchQuerySet.as_manager()
 
@@ -75,12 +86,13 @@ class Search(models.Model):
 
 
 class SearchResult(models.Model):
-    search = models.ForeignKey(Search, on_delete=models.CASCADE)
+    search = models.ForeignKey(Search, on_delete=models.CASCADE, related_name='results')
     update = models.ForeignKey('app.Update', on_delete=models.CASCADE)
     idempotency_key = models.CharField(max_length=255)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
+        ordering = ['-created']
         unique_together = ('search', 'update', 'idempotency_key')
 
     def __str__(self):

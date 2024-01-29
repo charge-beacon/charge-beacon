@@ -21,7 +21,11 @@
                 <div class="d-flex justify-content-between border-bottom">
                     <a href="{% url 'index' %}?search_id={{ search.id }}"
                        class="d-block w-100 py-3 flex-grow-1 fs-4 link-underline link-underline-opacity-0">
-                        {{ search.name }}</a>
+                        {{ search.name }}
+                        {% if search.unread_count %}
+                            <span class="badge rounded-pill text-bg-primary">{{ search.unread_count }}</span>
+                        {% endif %}
+                    </a>
                     <a href="{% url 'search-edit' search_id=search.id %}"
                        class="btn btn-outline-secondary my-3">
                         {% trans 'Edit' %}

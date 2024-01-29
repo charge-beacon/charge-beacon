@@ -32,7 +32,11 @@ def station(request, beacon_name):
 
 @login_required
 def searches(request):
-    saved = Search.objects.filter(user=request.user).order_by('name')
+    saved = (
+        Search.objects.filter(user=request.user)
+        .order_by('name')
+        .with_unread_count()
+    )
     return render(request, 'app/search/list.html', {
         'searches': saved
     })
