@@ -1,0 +1,1 @@
+{{ result_count }} new search result{{ result_count|pluralize }} on {{ site.name }}

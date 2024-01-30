@@ -6,6 +6,7 @@ from django.db.models.query import Q, F
 from django.db.models.aggregates import Count
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth import get_user_model
+from beacon.tasks import schedule_create_email_notification
 
 
 class SearchQuerySet(models.QuerySet):
@@ -53,10 +54,28 @@ class SearchQuerySet(models.QuerySet):
         return n_success, errors
 
     def with_unread_count(self):
-        newer_than_last_notified = Q(results__created__gt=F('last_notified_timestamp'))
+        newer_than_last_notified = Q(results__created_at__gt=F('last_notified_timestamp'))
         return self.annotate(
             unread_count=Count('results', filter=newer_than_last_notified)
         )
+
+    def send_daily_rollup_emails(self):
+        now = timezone.now()
+        eligible_searches = self.with_unread_count().filter(
+            unread_count__gt=0,
+            daily_email=True
+        )
+        for search in eligible_searches:
+            schedule_create_email_notification(search.id, 'daily', now)
+
+    def send_weekly_rollup_emails(self):
+        now = timezone.now()
+        eligible_searches = self.with_unread_count().filter(
+            unread_count__gt=0,
+            weekly_email=True
+        )
+        for search in eligible_searches:
+            schedule_create_email_notification(search.id, 'weekly', now)
 
 
 class Search(models.Model):
@@ -89,14 +108,27 @@ class SearchResult(models.Model):
     search = models.ForeignKey(Search, on_delete=models.CASCADE, related_name='results')
     update = models.ForeignKey('app.Update', on_delete=models.CASCADE)
     idempotency_key = models.CharField(max_length=255)
-    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
-        ordering = ['-created']
+        ordering = ['-created_at']
         unique_together = ('search', 'update', 'idempotency_key')
 
     def __str__(self):
-        return str(self.created)
+        return str(self.created_at)
+
+
+class NotificationType(models.TextChoices):
+    EMAIL = 'e', 'Email'
+
+
+class Notification(models.Model):
+    search = models.ForeignKey(Search, on_delete=models.CASCADE, related_name='notifications')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    type = models.CharField(max_length=1, choices=NotificationType.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    message = models.JSONField()
 
 
 class AreaType(models.TextChoices):

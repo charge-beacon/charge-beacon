@@ -1,0 +1,6 @@
+<h3>{{ result_count }} new search result{{ result_count|pluralize }} on {{ site.name }}</h3>
+
+<!-- TODO: add the search results in here -->
+<p>View results on the <a href="{{ base_url }}{% url 'index' %}?search_id={{ search.id }}">site</a></p>
+
+<p><a href="{{ base_url }}{% url 'search-edit' search_id=search.id %}">Unsubscribe</a></p>

@@ -1,0 +1,5 @@
+{{ result_count }} new search result{{ result_count|pluralize }} on {{ site.name }}
+
+View results on the site: {{ base_url }}{% url 'index' %}?search_id={{ search.id }}
+
+Unsubscribe: {{ base_url }}{% url 'search-edit' search_id=search.id %}

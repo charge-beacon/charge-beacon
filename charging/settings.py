@@ -127,6 +127,14 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'app.tasks.sync_fuel_stations',
         'schedule': crontab(minute='*/15'),
     },
+    'schedule_daily_rollup_emails': {
+        'task': 'beacon.tasks.schedule_daily_rollup_emails',
+        'schedule': crontab(minute='0', hour='0'),
+    },
+    'schedule_weekly_rollup_emails': {
+        'task': 'beacon.tasks.schedule_weekly_rollup_emails',
+        'schedule': crontab(minute='0', hour='6', day_of_week='mon'),
+    },
 }
 
 # Caching

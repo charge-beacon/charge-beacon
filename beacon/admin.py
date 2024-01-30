@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 from beacon.models import (
-    Search, SearchResult, Area, ZipCodeTabulationArea, USState, CanadianProvince, ForwardStatisticalArea
+    Search, SearchResult, Notification,
+    Area, ZipCodeTabulationArea, USState, CanadianProvince, ForwardStatisticalArea
 )
 
 
@@ -14,9 +15,16 @@ class SearchAdmin(admin.ModelAdmin):
 
 @admin.register(SearchResult)
 class SearchResultAdmin(admin.ModelAdmin):
-    list_display = ('search', 'update', 'created')
+    list_display = ('search', 'update', 'created_at')
     search_fields = ('search__name', 'search__user__username', 'search__user__email')
     readonly_fields = ('search', 'update')
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'type', 'created_at', 'sent_at')
+    search_fields = ('user__username', 'user__email')
+    readonly_fields = ('user', 'created_at', 'search')
 
 
 @admin.register(Area)
