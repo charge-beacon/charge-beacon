@@ -84,6 +84,7 @@ ROOT_URLCONF = 'charging.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['accounts/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

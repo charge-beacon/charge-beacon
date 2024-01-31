@@ -29,7 +29,6 @@ def profile(request):
         if change_email_form.is_valid():
             change_email_form.send_confirmation_email(
                 request.user,
-                change_email_form.cleaned_data['email'],
                 request.scheme,
                 Site.objects.get_current(request),
             )
@@ -160,6 +159,14 @@ class CustomLoginView(LoginView):
 
 
 class CustomPasswordResetView(PasswordResetView):
+    html_email_template_name = 'registration/password_reset_email.html'
+    email_template_name = 'registration/password_reset_email.txt'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        site = Site.objects.get_current()
+        self.from_email = f'{site.name} <{settings.DEFAULT_FROM_EMAIL}>'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         helper = FormHelper()

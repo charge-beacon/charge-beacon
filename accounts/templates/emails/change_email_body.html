@@ -1,9 +1,16 @@
-A user on {{ site.name }} ({{ site.domain }}) recently requested an email change for your account from {{ user.email }} to {{ email }}.
+{% extends 'emails/transactional_base.html' %}
 
-If this was you, please follow this link to confirm this change:
+{% block greeting %}
+    Hi {{ user.username }},
+{% endblock %}
 
-{{ scheme }}://{{ site.domain }}{% url 'confirm_change_email' username=user.username activation_key=key %}
+{% block message %}
+    A user on {{ site.name }} ({{ site.domain }}) recently requested an email
+    change for your account from {{ user.email }} to {{ email }}.
 
-Note, this link will expire in {{ expiry|timeuntil }}
+    <br><br>If this was you, please follow this link to confirm this change.
+    <br><br>Note, this link will expire in {{ expiry|timeuntil }}
+{% endblock %}
 
-Thanks!
+{% block cta_url %}{{ scheme }}://{{ site.domain }}{% url 'confirm_change_email' username=user.username activation_key=key %}{% endblock %}
+{% block cta_text %}Confirm Email Change{% endblock %}

@@ -1,13 +1,14 @@
 from datetime import timedelta
 from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
+from django.conf import settings
 from django.core import signing
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
 
 
 class ProfileForm(forms.ModelForm):
@@ -33,12 +34,12 @@ class ChangeEmailForm(forms.Form):
             raise forms.ValidationError(_('There is already a user with that email.'))
         return self.cleaned_data['email']
 
-    def send_confirmation_email(self, user, email, scheme, site):
+    def send_confirmation_email(self, user, scheme, site):
         context = {
             'scheme': scheme,
-            'key': get_email_change_key(user, email),
+            'key': get_email_change_key(user, self.cleaned_data['email']),
             'user': user,
-            'email': email,
+            'email': self.cleaned_data['email'],
             'site': site,
             'expiry': timezone.now() + change_email_expiry_duration
         }
@@ -48,11 +49,22 @@ class ChangeEmailForm(forms.Form):
         )
         # join subject lines to avoid header injection issues
         subject = ''.join(subject.splitlines())
-        body = render_to_string(
+        body_plaintext = render_to_string(
+            template_name='emails/change_email_body.txt',
+            context=context,
+        )
+        body_html = render_to_string(
             template_name='emails/change_email_body.html',
             context=context,
         )
-        send_mail(subject, body, None, [email])
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=body_plaintext,
+            from_email=f'{site.name} <{settings.DEFAULT_FROM_EMAIL}>',
+            to=[self.cleaned_data['email']],
+        )
+        email.attach_alternative(body_html, 'text/html')
+        email.send()
 
 
 change_email_expiry_duration = timedelta(days=1, minutes=1)

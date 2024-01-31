@@ -3,9 +3,9 @@
 {% mjml %}
     <mjml>
         <mj-body>
-            <mj-section background-color="#F0FBFC" padding-top="25px" padding-bottom="0px" >
+            <mj-section background-color="#F0FBFC" padding-top="25px" padding-bottom="0px">
                 <mj-column width="100%">
-                    <mj-image src="{{ scheme }}://{{ site.domain }}{% static 'accounts/emails/logotext_2x.png' %}"
+                    <mj-image src="{% block site_baseurl %}{{ scheme }}://{{ site.domain }}{% endblock %}{% static 'accounts/emails/logotext_2x.png' %}"
                               width="250px" padding-left="0"
                               padding-bottom="0px" padding-top="0">
                     </mj-image>
@@ -28,7 +28,7 @@
                     <mj-button align="left" font-size="22px" font-weight="bold" background-color="#1A9B17"
                                border-radius="10px" color="#ffffff"
                                font-family="open Sans Helvetica, Arial, sans-serif"
-                    href="{% block cta_url %}{% endblock %}">
+                               href="{% block cta_url %}{% endblock %}">
                         {% block cta_text %}{% endblock %}
                     </mj-button>
                     <mj-text align="left" color="#032336" font-size="15px"
