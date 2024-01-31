@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'anymail',
     'django_countries',
     'django_celery_results',
-    'mjml',
     'accounts',
     'app',
     'beacon'
