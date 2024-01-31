@@ -1,9 +1,11 @@
 from django.core.paginator import Paginator
-from django.contrib.auth.decorators import login_required
-from django.contrib.syndication.views import Feed
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.decorators import login_required
+from django.contrib.syndication.views import Feed
+from django.contrib import messages
 from beacon.models import Search, Area
 from beacon.forms import SearchForm
 from app.models import Station, Update
@@ -52,6 +54,7 @@ def new_search(request):
         form = SearchForm(data, user=request.user)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.INFO, _('Search successfully created'))
             return redirect('search-edit', search_id=form.instance.id)
         else:
             ctx['errors'] = form.errors
@@ -66,6 +69,7 @@ def edit_search(request, search_id):
     if request.method == 'POST':
         if request.POST.get('delete', None) == 'true':
             ctx['search'].delete()
+            messages.add_message(request, messages.INFO, _('Search successfully deleted'))
             return redirect('searches-list')
 
         data = get_search_form_data(request, ctx)
@@ -73,6 +77,7 @@ def edit_search(request, search_id):
         form = SearchForm(data, instance=ctx['search'], user=request.user)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.INFO, _('Search saved successfully'))
             return redirect('search-edit', search_id=form.instance.id)
         else:
             ctx['errors'] = form.errors
