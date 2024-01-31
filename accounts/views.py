@@ -11,10 +11,9 @@ from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
 from django_registration.backends.activation.views import RegistrationView
 
-from app.forms import ProfileForm, ChangeEmailForm, ChangePasswordForm, DeleteAccountForm, decode_email_change_key
+from accounts.forms import ProfileForm, ChangeEmailForm, decode_email_change_key, DeleteAccountForm, ChangePasswordForm
 
 
-# Create your views here.
 @login_required
 def profile(request):
     if request.method == 'POST' and request.POST.get('action') == 'profile':
