@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'anymail',
     'django_countries',
     'django_celery_results',
+    'mjml',
     'accounts',
     'app',
     'beacon'
@@ -83,7 +84,6 @@ ROOT_URLCONF = 'charging.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'charging' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,11 +128,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/15'),
     },
     'schedule_daily_rollup_emails': {
-        'task': 'beacon.tasks.schedule_daily_rollup_emails',
+        'task': 'beacon.tasks.create_daily_rollup_emails',
         'schedule': crontab(minute='0', hour='0'),
     },
     'schedule_weekly_rollup_emails': {
-        'task': 'beacon.tasks.schedule_weekly_rollup_emails',
+        'task': 'beacon.tasks.create_weekly_rollup_emails',
         'schedule': crontab(minute='0', hour='6', day_of_week='mon'),
     },
 }
@@ -232,6 +232,15 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": os.environ.get('MAILGUN_SENDER_DOMAIN', ''),
 }
 
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = f"no-reply@{ANYMAIL['MAILGUN_SENDER_DOMAIN']}"
-SERVER_EMAIL = f"server@{ANYMAIL['MAILGUN_SENDER_DOMAIN']}"
+if ANYMAIL['MAILGUN_API_KEY'] and ANYMAIL['MAILGUN_SENDER_DOMAIN']:
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+    DEFAULT_FROM_EMAIL = f"no-reply@{ANYMAIL['MAILGUN_SENDER_DOMAIN']}"
+    SERVER_EMAIL = f"server@{ANYMAIL['MAILGUN_SENDER_DOMAIN']}"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 1025))
+    DEFAULT_FROM_EMAIL = 'no-reply@localhost'
+
+MJML_BACKEND_MODE = 'cmd'
+MJML_EXEC_CMD = BASE_DIR / 'node_modules/mjml/bin/mjml'

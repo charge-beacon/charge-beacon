@@ -1,5 +1,8 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Hidden
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+from django.template.loader import render_to_string
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView, PasswordChangeView
@@ -97,6 +100,8 @@ def confirm_change_email(request, username, activation_key):
 
 
 class CustomRegistrationView(RegistrationView):
+    email_body_html_template = 'django_registration/activation_email_body.html'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         helper = FormHelper()
@@ -104,6 +109,43 @@ class CustomRegistrationView(RegistrationView):
         helper.add_input(Submit('submit', 'Register'))
         context['helper'] = helper
         return context
+
+    def send_activation_email(self, user):
+        """
+        Send the activation email. The activation key is the username,
+        signed using TimestampSigner.
+
+        """
+        activation_key = self.get_activation_key(user)
+        context = self.get_email_context(activation_key)
+        context["user"] = user
+        subject = render_to_string(
+            template_name=self.email_subject_template,
+            context=context,
+            request=self.request,
+        )
+        # Force subject to a single line to avoid header-injection
+        # issues.
+        subject = "".join(subject.splitlines())
+        message = render_to_string(
+            template_name=self.email_body_template,
+            context=context,
+            request=self.request,
+        )
+        message_html = render_to_string(
+            template_name=self.email_body_html_template,
+            context=context,
+            request=self.request
+        )
+
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=message,
+            from_email=f'{context["site"].name} <{settings.DEFAULT_FROM_EMAIL}>',
+            to=[user.email],
+        )
+        email.attach_alternative(message_html, "text/html")
+        email.send()
 
 
 class CustomLoginView(LoginView):

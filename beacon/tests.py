@@ -138,4 +138,5 @@ class NotificationBeaconTestCase(BeaconTestCase):
         self.assertEqual(self.notif.type, NotificationType.EMAIL)
 
     def test_notification_content(self):
-        self.assertIn('1 new search result on example.com', self.notif.message['body_html'])
+        self.assertIn('There is 1 new result for your test search on example.com',
+                      self.notif.message['body_html'])

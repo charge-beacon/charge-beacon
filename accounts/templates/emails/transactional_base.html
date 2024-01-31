@@ -1,0 +1,45 @@
+{% load mjml static %}
+
+{% mjml %}
+    <mjml>
+        <mj-body>
+            <mj-section background-color="#F0FBFC" padding-top="25px" padding-bottom="0px" >
+                <mj-column width="100%">
+                    <mj-image src="{{ scheme }}://{{ site.domain }}{% static 'accounts/emails/logotext_2x.png' %}"
+                              width="250px" padding-left="0"
+                              padding-bottom="0px" padding-top="0">
+                    </mj-image>
+                </mj-column>
+            </mj-section>
+            <mj-section background-color="#F0FBFC" padding-bottom="20px" padding-top="20px">
+                <mj-column width="100%">
+                    <mj-text align="left" color="#032336" font-size="22px"
+                             font-family="open Sans Helvetica, Arial, sans-serif" padding-left="25px"
+                             padding-right="25px">
+                        {% block greeting %}
+                        {% endblock %}
+                    </mj-text>
+                    <mj-text align="left" color="#032336" font-size="15px"
+                             font-family="open Sans Helvetica, Arial, sans-serif" padding-left="25px"
+                             padding-right="25px">
+                        {% block message %}
+                        {% endblock %}
+                    </mj-text>
+                    <mj-button align="left" font-size="22px" font-weight="bold" background-color="#1A9B17"
+                               border-radius="10px" color="#ffffff"
+                               font-family="open Sans Helvetica, Arial, sans-serif"
+                    href="{% block cta_url %}{% endblock %}">
+                        {% block cta_text %}{% endblock %}
+                    </mj-button>
+                    <mj-text align="left" color="#032336" font-size="15px"
+                             font-family="open Sans Helvetica, Arial, sans-serif" padding-left="25px"
+                             padding-right="25px">Thanks, <br/> The {{ site.name }} Team
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+        </mj-body>
+    </mjml>
+{% endmjml %}
+
+
+

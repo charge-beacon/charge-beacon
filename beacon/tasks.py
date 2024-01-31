@@ -1,7 +1,8 @@
 from django.apps import apps
 from django.utils import timezone
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.contrib.sites.models import Site
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
@@ -61,13 +62,16 @@ def send_html_email(task, notification_id):
 
     logging.info("[Started] sending email to %s", notification.user)
 
-    send_mail(
-        notification.message['subject'],
-        notification.message['body'],
-        settings.DEFAULT_FROM_EMAIL,
-        [notification.message['recipient']],
-        html_message=notification.message['body_html']
+    site = Site.objects.get_current()
+
+    message = EmailMultiAlternatives(
+        subject=notification.message['subject'],
+        body=notification.message['body'],
+        from_email=f'{site.name} <{settings.DEFAULT_FROM_EMAIL}>',
+        to=[notification.message['recipient']]
     )
+    message.attach_alternative(notification.message['body_html'], "text/html")
+    message.send()
 
     notification.sent_at = timezone.now()
     notification.save()

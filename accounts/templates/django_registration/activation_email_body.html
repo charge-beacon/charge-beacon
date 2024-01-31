@@ -1,0 +1,15 @@
+{% extends 'emails/transactional_base.html' %}
+
+{% block greeting %}
+    Hey {{ user.username }}!
+{% endblock %}
+
+{% block message %}
+    Thank you for registering your account! Excited to have you.
+    <br><br>Please click the button below to activate your account.
+    <br><br>Link is valid for {{ expiration_days }} days.
+{% endblock %}
+
+{% block cta_url %}{{ scheme }}://{{ site.domain }}{% url 'django_registration_activate' activation_key %}{% endblock %}
+
+{% block cta_text %}Activate Account{% endblock %}
