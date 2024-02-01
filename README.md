@@ -1,5 +1,7 @@
 # Charge Beacon
 
+![Group 8](https://github.com/charge-beacon/charge-beacon/assets/101497/e4e8683f-6318-4a36-94b9-7e0cbc811a50)
+
 [Charge Beacon](https://chargebeacon.app) is a tool that allows you to track and receive updates on EV charging station installations and
 availability in specific regions, primarily in North America. It is a free tool that is open to the public. Hosting is provided courtesy of the project maintainers.
 
