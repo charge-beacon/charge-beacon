@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
 from django_registration.backends.activation.views import RegistrationView
-
+from app.events import APP_SIGNUP
 from accounts.forms import ProfileForm, ChangeEmailForm, decode_email_change_key, DeleteAccountForm, ChangePasswordForm
 
 
@@ -144,6 +144,8 @@ class CustomRegistrationView(RegistrationView):
         )
         email.attach_alternative(message_html, "text/html")
         email.send()
+
+        APP_SIGNUP.send('New account creation', {'username': user.get_username()})
 
 
 class CustomLoginView(LoginView):

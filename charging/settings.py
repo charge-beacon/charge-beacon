@@ -244,3 +244,6 @@ else:
 
 MJML_BACKEND_MODE = 'cmd'
 MJML_EXEC_CMD = BASE_DIR / 'node_modules/mjml/bin/mjml'
+
+DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL', '')
+DISCORD_WEBHOOK_EVENTS = ['app_signup', 'create_search']

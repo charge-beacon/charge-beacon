@@ -3,6 +3,7 @@ from django.conf import settings
 from django.apps import apps
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 
 logging = get_task_logger(__name__)
@@ -55,4 +56,27 @@ def publish_update(update_id):
     return {
         'published': n_published,
         'errors': len(errors),
+    }
+
+
+@shared_task
+def event(name, message, data):
+    logging.info("[Event] %s %s %s", name, message, data)
+
+    if name in settings.DISCORD_WEBHOOK_EVENTS:
+        webhook = DiscordWebhook(url=settings.DISCORD_WEBHOOK_URL)
+        embed = DiscordEmbed(
+            title=name.replace("_", " ").title(),
+            description=message,
+            color='0x0087D8',
+        )
+        for k, v in data.items():
+            embed.add_embed_field(name=k, value=v)
+        webhook.add_embed(embed)
+        webhook.execute()
+
+    return {
+        'name': name,
+        'message': message,
+        'data': data,
     }

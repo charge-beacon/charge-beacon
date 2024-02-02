@@ -11,6 +11,7 @@ from beacon.forms import SearchForm
 from app.models import Station, Update
 from app.renderer import get_changes
 from app.constants import LOOKUPS
+from app.events import CREATE_SEARCH
 
 
 def index(request):
@@ -55,6 +56,10 @@ def new_search(request):
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.INFO, _('Search successfully created'))
+            CREATE_SEARCH.send('New search created', {
+                'name': form.instance.name,
+                'username': request.user.get_username(),
+            })
             return redirect('search-edit', search_id=form.instance.id)
         else:
             ctx['errors'] = form.errors
