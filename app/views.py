@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -24,8 +24,12 @@ def updates_partial(request):
     return render(request, 'app/updates_body.html', ctx)
 
 
-def station(request, beacon_name):
+def station(request, beacon_name, fmt):
     item = get_object_or_404(Station, beacon_name=beacon_name)
+
+    if fmt == 'json':
+        return JsonResponse(item.to_dict())
+
     return render(request, 'app/station.html', {
         'base_uri': f'{request.scheme}://{request.get_host()}',
         'station': item,
@@ -50,7 +54,7 @@ def new_search(request):
     ctx = get_search_context(request)
     ctx['action'] = reverse('search-new')
     if request.method == 'POST':
-        data = get_search_form_data(request, ctx)
+        data = get_search_form_data(request)
 
         form = SearchForm(data, user=request.user)
         if form.is_valid():
@@ -77,7 +81,7 @@ def edit_search(request, search_id):
             messages.add_message(request, messages.INFO, _('Search successfully deleted'))
             return redirect('searches-list')
 
-        data = get_search_form_data(request, ctx)
+        data = get_search_form_data(request)
 
         form = SearchForm(data, instance=ctx['search'], user=request.user)
         if form.is_valid():
@@ -92,17 +96,18 @@ def edit_search(request, search_id):
     return render(request, 'app/search/edit.html', ctx)
 
 
-def get_search_form_data(request, ctx) -> dict:
+def get_search_form_data(request) -> dict:
+    req_data = request.GET if request.method == 'GET' else request.POST
     return {
-        'name': request.POST.get('name', ''),
-        'ev_networks': ctx['selected_networks'],
-        'plug_types': ctx['selected_plug_types'],
-        'dc_fast': ctx['dc_fast'],
-        'only_new': ctx['only_new'],
-        'within': ctx['selected_areas'],
-        'daily_email': request.POST.get('daily_email', None),
-        'weekly_email': request.POST.get('weekly_email', None),
-        'is_public': request.POST.get('is_public', None)
+        'name': req_data.get('name', ''),
+        'ev_networks': get_param(request, 'ev_network'),
+        'plug_types': get_param(request, 'plug_types'),
+        'dc_fast': req_data.get('dc_fast'),
+        'only_new': req_data.get('only_new'),
+        'within': get_param(request, 'ev_area'),
+        'daily_email': req_data.get('daily_email', None),
+        'weekly_email': req_data.get('weekly_email', None),
+        'is_public': req_data.get('is_public', None)
     }
 
 

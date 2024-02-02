@@ -207,6 +207,9 @@ class Station(models.Model):
     def full_address_one_line(self):
         return f'{self.street_address}, {self.city}, {self.state} {self.zip}'
 
+    def to_dict(self):
+        return dict_from_model(self)
+
 
 def network_name_as_handle(network):
     return network.lower().replace(' ', '-') if network else 'none'
