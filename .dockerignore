@@ -8,4 +8,5 @@ staticfiles
 __pycache__
 *.pyc
 celerybeat-schedule.db
-node_modules
+**/node_modules
+web/build
