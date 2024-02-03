@@ -35,6 +35,7 @@ if DEBUG:
     INTERNAL_IPS = [
         '127.0.0.1',
     ]
+    CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
     'anymail',
     'django_countries',
     'django_celery_results',
+    'corsheaders',
     'accounts',
     'app',
     'beacon'
@@ -70,6 +72,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
