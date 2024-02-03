@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django_countries',
     'django_celery_results',
     'corsheaders',
+    'webpack_loader',
     'accounts',
     'app',
     'beacon'
@@ -186,6 +187,20 @@ STATIC_URL = 'static/'
 STATIC_ROOT = 'staticfiles/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'web', 'build'),
+)
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'webpack_bundles/',
+        'CACHE': not DEBUG,
+        'STATS_FILE': os.path.join(BASE_DIR, 'web', 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+    }
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

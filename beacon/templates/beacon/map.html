@@ -1,0 +1,19 @@
+{% extends 'app/base.html' %}
+
+{% load render_bundle from webpack_loader %}
+
+{% block style_extra %}
+    {% render_bundle 'main' 'css' %}
+{% endblock %}
+
+{% block title %}{{ site.name }} Map{% endblock %}
+
+{% block script_extra %}
+
+{% endblock %}
+
+{% block content %}
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    {% render_bundle 'main' 'js' %}
+{% endblock %}

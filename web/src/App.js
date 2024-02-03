@@ -10,11 +10,10 @@ import Brand from './components/brand';
 function App() {
     const mapContainer = useRef(null);
     const map = useRef(null);
-    const apiBaseURL = `http://127.0.0.1:8000`
     const [lng] = useState(-122.676483);
     const [lat] = useState(45.523064);
     const [zoom] = useState(12);
-    const [API_KEY] = useState('uUwF6KY8nNG8G5gASRpa');
+    const [API_KEY] = useState('NM2bzuwan7L5ET5h10no');
 
     useEffect(() => {
         if (map.current) return; // stops map from intializing more than once
@@ -37,7 +36,7 @@ function App() {
             const boundsStr = getBoundsStr();
             map.current.addSource('stations', {
                 type: 'geojson',
-                data: `${apiBaseURL}/geojson/stations?bounds=${boundsStr}`,
+                data: `/geojson/stations?bounds=${boundsStr}`,
                 cluster: true,
                 clusterRadius: 20,
                 clusterMaxZoom: 14,
@@ -70,7 +69,7 @@ function App() {
 
         const updateData = () => {
             const boundsStr = getBoundsStr();
-            map.current.getSource('stations').setData(`${apiBaseURL}/geojson/stations?bounds=${boundsStr}`);
+            map.current.getSource('stations').setData(`/geojson/stations?bounds=${boundsStr}`);
         };
 
         map.current.on('moveend', updateData);
@@ -118,7 +117,7 @@ function App() {
                     )
                     .addTo(map.current);
 
-                fetch(`${apiBaseURL}/station/${station.properties.beacon_name}.json`)
+                fetch(`/station/${station.properties.beacon_name}.json`)
                     .then(response => response.json())
                     .then(data => {
                         console.log('station data', data);
@@ -134,7 +133,7 @@ function App() {
             }
         });
 
-    }, [API_KEY, lng, lat, zoom, apiBaseURL]);
+    }, [API_KEY, lng, lat, zoom]);
 
     return (
         <div className="w-100 h-100 position-absolute">
