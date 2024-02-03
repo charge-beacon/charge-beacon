@@ -3,4 +3,5 @@ from beacon import views
 
 urlpatterns = [
     path('area_autocomplete', views.area_autocomplete, name='area-autocomplete'),
+    path('map', views.map, name='map'),
 ]
