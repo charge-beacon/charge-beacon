@@ -750,7 +750,7 @@ module.exports = function (webpackEnv) {
         }),
         new BundleTracker({
           path: paths.appPath,
-          publicPath: isEnvDevelopment ? 'http://localhost:3000/map/' : '/static/webpack_bundles/',
+          publicPath: isEnvDevelopment ? 'http://localhost:3000/static/webpack_bundles/' : '/static/webpack_bundles/',
           filename: 'webpack-stats.json',
         })
     ].filter(Boolean),

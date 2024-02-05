@@ -8,6 +8,11 @@
 
 {% block title %}{{ site.name }} Map{% endblock %}
 
+{% block meta %}
+    {{ block.super }}
+    <base href="{{ request.scheme }}://{{ site.domain }}/map">
+{% endblock %}
+
 {% block script_extra %}
 
 {% endblock %}
