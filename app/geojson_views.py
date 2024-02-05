@@ -22,7 +22,7 @@ def stations_in_bounds(request):
     stations = Station.objects.filter(point__within=bbox_polygon)
 
     # Serialize queryset to GeoJSON
-    geojson = serialize('geojson', stations, geometry_field='point', fields=('beacon_name',))
+    geojson = serialize('geojson', stations, geometry_field='point', fields=('beacon_name', 'ev_dc_fast_num'))
 
     return HttpResponse(geojson, content_type='application/json')
 
