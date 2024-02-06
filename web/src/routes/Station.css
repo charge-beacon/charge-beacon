@@ -1,0 +1,6 @@
+.Station {
+    width: 350px;
+    height: calc(100vh - 52px);
+    top: 52px;
+    position: absolute;
+}

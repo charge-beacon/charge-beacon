@@ -2,14 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
-import App from './App';
 import MapRoute from "./routes/maproute";
+import StationRoute from "./routes/stationroute";
 import reportWebVitals from './reportWebVitals';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MapRoute />,
+      children: [
+          {
+              path: "/:beaconName",
+              element: <StationRoute />
+          }
+      ]
   },
 ], {
     basename: "/map",

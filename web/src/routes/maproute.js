@@ -2,11 +2,13 @@ import React, {useRef, useState, useCallback} from "react";
 import Navbar from "../components/navbar";
 import Map, {MapProvider, Popup, NavigationControl, GeolocateControl} from 'react-map-gl/maplibre';
 import LiveStationSource from "../components/map/LiveStationSource";
+import {Outlet, useNavigate} from "react-router-dom";
 
 export const API_KEY = 'NM2bzuwan7L5ET5h10no';
 const BASE_URL = '';
 
 export default function MapRoute() {
+    const navigate = useNavigate();
     const [viewState, setViewState] = useState({
         longitude: -122.676483,
         latitude: 45.523064,
@@ -68,6 +70,8 @@ export default function MapRoute() {
             loading: true
         });
 
+        navigate(`/${station.properties.beacon_name}`);
+
         // Fetch the station data
         fetch(`${BASE_URL}/station/${station.properties.beacon_name}.json`)
             .then(response => response.json())
@@ -78,7 +82,7 @@ export default function MapRoute() {
                     loading: false
                 });
             });
-    }, []);
+    }, [navigate]);
 
     let stationPopupContents = null;
     if (selectedStation !== null && selectedStation.loading) {
@@ -100,6 +104,7 @@ export default function MapRoute() {
     return (
         <MapProvider>
             <Navbar/>
+            <Outlet />
             <Map
                 {...viewState}
                 ref={mapRef}
