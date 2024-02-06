@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from django.db.models.query import Q
-from django.template.response import TemplateResponse
 
 from beacon.models import Area, AreaType
 
@@ -24,7 +23,3 @@ def area_autocomplete(request):
     } for area in areas]
 
     return JsonResponse(results, safe=False)
-
-
-def map(request):
-    return TemplateResponse(request, 'beacon/map.html')

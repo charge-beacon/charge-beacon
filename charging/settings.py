@@ -29,6 +29,7 @@ DEBUG = os.environ.get("DEBUG", "false") == "true"
 APP_NAME = os.environ.get("FLY_APP_NAME")
 ALLOWED_HOSTS = [f'{APP_NAME}.fly.dev', 'www.chargebeacon.app', 'chargebeacon.app']
 CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS]
+CORS_ALLOWED_ORIGINS = ['https://map.chargebeacon.app']
 
 if DEBUG:
     ALLOWED_HOSTS.append("127.0.0.1")
@@ -63,7 +64,6 @@ INSTALLED_APPS = [
     'django_countries',
     'django_celery_results',
     'corsheaders',
-    'webpack_loader',
     'accounts',
     'app',
     'beacon'
@@ -188,20 +188,6 @@ STATIC_URL = 'static/'
 STATIC_ROOT = 'staticfiles/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'web', 'build'),
-)
-
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'webpack_bundles/',
-        'CACHE': not DEBUG,
-        'STATS_FILE': os.path.join(BASE_DIR, 'web', 'webpack-stats.json'),
-        'POLL_INTERVAL': 0.1,
-        # 'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
-    }
-}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
