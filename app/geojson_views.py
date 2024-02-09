@@ -25,4 +25,3 @@ def stations_in_bounds(request):
     geojson = serialize('geojson', stations, geometry_field='point', fields=('beacon_name', 'ev_dc_fast_num'))
 
     return HttpResponse(geojson, content_type='application/json')
-

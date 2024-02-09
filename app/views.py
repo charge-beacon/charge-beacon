@@ -9,7 +9,7 @@ from django.contrib import messages
 from beacon.models import Search, Area
 from beacon.forms import SearchForm
 from app.models import Station, Update
-from app.renderer import get_changes
+from app.renderer import get_changes, render_field
 from app.constants import LOOKUPS
 from app.events import CREATE_SEARCH
 
@@ -28,7 +28,8 @@ def station(request, beacon_name, fmt):
     item = get_object_or_404(Station, beacon_name=beacon_name)
 
     if fmt == 'json':
-        return JsonResponse(item.to_dict())
+        item_dict = {k: render_field(k, v) for k, v in item.to_dict().items()}
+        return JsonResponse(item_dict)
 
     return render(request, 'app/station.html', {
         'base_uri': f'{request.scheme}://{request.get_host()}',
